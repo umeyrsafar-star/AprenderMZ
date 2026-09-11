@@ -1,0 +1,3585 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AprenderMZ — Marketplace de tutoria online para estudantes moçambicanos.">
+    <meta name="theme-color" content="#059669">
+    <title>AprenderMZ — Explicadores de Qualidade em Moçambique</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.22.1.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    
+    <style>
+        /* ==================== ROOT ==================== */
+        :root {
+            --verde: #059669;
+            --verde-escuro: #047857;
+            --verde-claro: #10b981;
+            --verde-bg: #ecfdf5;
+            --dourado: #d4a853;
+            --dourado-escuro: #b8943a;
+            --branco: #ffffff;
+            --cinza-50: #f9fafb;
+            --cinza-100: #f3f4f6;
+            --cinza-200: #e5e7eb;
+            --cinza-300: #d1d5db;
+            --cinza-400: #9ca3af;
+            --cinza-500: #6b7280;
+            --cinza-600: #4b5563;
+            --cinza-700: #374151;
+            --cinza-800: #1f2937;
+            --cinza-900: #111827;
+            --erro: #ef4444;
+            --sucesso: #10b981;
+            --whatsapp: #25D366;
+            --mpesa: #e60000;
+            --agora: #0891b2;
+            --sombra-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --sombra-md: 0 4px 12px rgba(0,0,0,0.06);
+            --sombra-lg: 0 12px 30px rgba(0,0,0,0.08);
+            --sombra-xl: 0 20px 50px rgba(0,0,0,0.1);
+            --sombra-verde: 0 4px 20px rgba(5,150,105,0.2);
+            --radius: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transicao: 0.25s cubic-bezier(0.4,0,0.2,1);
+            --max-width: 1200px;
+            --header-h: 64px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 24px); }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--cinza-800);
+            background: var(--cinza-50);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        @media(min-width:768px) { .container { padding: 0 32px; } }
+        @media(min-width:1024px) { .container { padding: 0 40px; } }
+
+        /* ==================== BOTÕES ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 11px 22px;
+            border-radius: 100px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transicao);
+            white-space: nowrap;
+            line-height: 1.2;
+            min-height: 44px;
+        }
+        .btn:focus-visible { outline: 3px solid var(--verde-claro); outline-offset: 3px; }
+        .btn-primario {
+            background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+            color: #fff;
+            box-shadow: var(--sombra-verde);
+        }
+        .btn-primario:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(5,150,105,0.35); }
+        .btn-secundario {
+            background: var(--branco);
+            color: var(--verde);
+            border: 2px solid var(--verde);
+        }
+        .btn-secundario:hover { background: var(--verde-bg); transform: translateY(-2px); }
+        .btn-dourado {
+            background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(212,168,83,0.25);
+        }
+        .btn-dourado:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212,168,83,0.4); }
+        .btn-whatsapp { background: var(--whatsapp); color: #fff; }
+        .btn-whatsapp:hover { background: #1ebe57; transform: translateY(-2px); }
+        .btn-mpesa { background: var(--mpesa); color: #fff; }
+        .btn-mpesa:hover { background: #cc0000; transform: translateY(-2px); }
+        .btn-agora {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(8,145,178,0.3);
+        }
+        .btn-agora:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(8,145,178,0.4); }
+        .btn-sm { padding: 7px 14px; font-size: 0.8rem; min-height: 34px; border-radius: 8px; }
+        .btn-lg { padding: 15px 30px; font-size: 1rem; min-height: 52px; border-radius: 16px; font-weight: 700; }
+        .btn-bloco { width: 100%; justify-content: center; }
+        .btn:active { transform: scale(0.96); }
+        .btn-success {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); }
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(5,150,105,0.06);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            transition: var(--transicao);
+        }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--cinza-900);
+        }
+        .logo-icone {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            box-shadow: var(--sombra-verde);
+        }
+        .logo-nome {
+            background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nav-desktop { display: none; gap: 6px; align-items: center; }
+        @media(min-width:900px) { .nav-desktop { display: flex; } }
+        .nav-link {
+            color: var(--cinza-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 100px;
+            transition: var(--transicao);
+        }
+        .nav-link:hover { color: var(--verde); background: var(--verde-bg); }
+        .btn-mobile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            color: var(--cinza-700);
+        }
+        @media(min-width:900px) { .btn-mobile { display: none; } }
+
+        .auth-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--verde-bg);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(5,150,105,0.12);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--verde-escuro);
+        }
+        .auth-badge .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--verde);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+
+        /* ==================== MENU MOBILE ==================== */
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 98;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .menu-overlay.aberto { opacity: 1; pointer-events: auto; }
+        .menu-mobile {
+            position: fixed;
+            top: var(--header-h);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            z-index: 99;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+            overflow-y: auto;
+        }
+        .menu-mobile.aberto { transform: translateX(0); }
+        .menu-mobile .nav-link {
+            font-size: 1.05rem;
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .menu-mobile .btn { margin-top: 6px; width: 100%; justify-content: center; }
+
+        /* ==================== HERO ==================== */
+        .hero {
+            padding: 40px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        @media(min-width:768px) { .hero { padding: 60px 0 80px; } }
+        .hero-bg {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(110px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-bg.verde { width: 350px; height: 350px; background: var(--verde); top: -120px; right: -100px; }
+        .hero-bg.dourado { width: 280px; height: 280px; background: var(--dourado); bottom: -80px; left: -80px; }
+        .hero-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        @media(min-width:1024px) { .hero-grid { flex-direction: row; gap: 50px; } }
+        .hero-texto { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+        @media(min-width:1024px) { .hero-texto { text-align: left; align-items: flex-start; gap: 22px; } }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--verde-bg);
+            color: var(--verde-escuro);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(5,150,105,0.12);
+        }
+        .hero-titulo {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.9rem, 5.5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.12;
+            color: var(--cinza-900);
+            max-width: 550px;
+        }
+        .hero-titulo .destaque { position: relative; display: inline-block; }
+        .hero-titulo .destaque::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 0;
+            right: 0;
+            height: 9px;
+            background: #f5e6c8;
+            border-radius: 3px;
+            z-index: -1;
+            opacity: 0.65;
+        }
+        .hero-sub {
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
+            color: var(--cinza-500);
+            max-width: 480px;
+            line-height: 1.65;
+        }
+        .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+        @media(max-width:480px) { .hero-ctas { flex-direction: column; width: 100%; } .hero-ctas .btn { width: 100%; justify-content: center; } }
+        .hero-stats { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; padding-top: 6px; }
+        @media(min-width:1024px) { .hero-stats { justify-content: flex-start; } }
+        .hero-stat-num { font-weight: 800; font-size: 1.4rem; color: var(--verde-escuro); display: block; }
+        .hero-stat-lbl { font-size: 0.75rem; color: var(--cinza-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+
+        .hero-card {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            padding: clamp(16px, 4vw, 28px);
+            box-shadow: var(--sombra-lg);
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .hero-card-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--cinza-50);
+            border-radius: 12px;
+        }
+        .hero-card-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-claro), var(--verde));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .hero-card-avatar.dourado {
+            background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro));
+        }
+        .hero-card-info { flex: 1; min-width: 0; }
+        .hero-card-nome { font-weight: 700; font-size: 0.85rem; color: var(--cinza-800); }
+        .hero-card-disc { font-size: 0.75rem; color: var(--cinza-400); }
+        .hero-card-preco { font-weight: 800; color: var(--verde); font-size: 0.85rem; white-space: nowrap; }
+
+        /* ==================== SEÇÕES ==================== */
+        .seccao { padding: 60px 0; }
+        @media(min-width:768px) { .seccao { padding: 80px 0; } }
+        .seccao-cinza { background: var(--cinza-50); }
+        .seccao-header { text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .seccao-titulo {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.5rem, 4.5vw, 2.3rem);
+            font-weight: 800;
+            color: var(--cinza-900);
+            max-width: 550px;
+        }
+        .seccao-sub { color: var(--cinza-500); max-width: 450px; font-size: 0.9rem; }
+
+        /* ==================== COMO FUNCIONA ==================== */
+        .passos-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media(min-width:640px) { .passos-grid { grid-template-columns: repeat(3, 1fr); } }
+        .passo-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 26px 22px;
+            text-align: center;
+            box-shadow: var(--sombra-sm);
+            border: 1px solid var(--cinza-100);
+            transition: var(--transicao);
+        }
+        .passo-card:hover { transform: translateY(-5px); box-shadow: var(--sombra-md); border-color: var(--verde-claro); }
+        .passo-num {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: var(--verde-bg);
+            color: var(--verde);
+            font-weight: 800;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            transition: var(--transicao);
+        }
+        .passo-card:hover .passo-num { background: var(--verde); color: #fff; box-shadow: var(--sombra-verde); }
+        .passo-card h3 { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+        .passo-card p { font-size: 0.82rem; color: var(--cinza-500); }
+
+        /* ==================== MATÉRIAS ==================== */
+        .materias-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media(min-width:480px) { .materias-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media(min-width:768px) { .materias-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media(min-width:1024px) { .materias-grid { grid-template-columns: repeat(6, 1fr); } }
+        .materia-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px 12px;
+            text-align: center;
+            box-shadow: var(--sombra-sm);
+            border: 1px solid var(--cinza-200);
+            transition: var(--transicao);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .materia-card:hover { border-color: var(--verde-claro); box-shadow: var(--sombra-md); transform: translateY(-3px); }
+        .materia-icone {
+            font-size: 1.5rem;
+            color: var(--verde);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--verde-bg);
+            transition: var(--transicao);
+        }
+        .materia-card:hover .materia-icone { background: var(--verde); color: #fff; }
+        .materia-card span { font-weight: 600; font-size: 0.8rem; color: var(--cinza-700); }
+
+        /* ==================== PLANOS ==================== */
+        .planos-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 750px;
+            margin: 0 auto;
+            align-items: stretch;
+        }
+        @media(min-width:640px) { .planos-grid { grid-template-columns: repeat(2, 1fr); } }
+        .plano-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 28px 22px;
+            box-shadow: var(--sombra-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 2px solid transparent;
+            transition: var(--transicao);
+            position: relative;
+        }
+        .plano-card:hover { transform: translateY(-5px); box-shadow: var(--sombra-md); }
+        .plano-card.destaque {
+            border-color: var(--dourado);
+            background: linear-gradient(180deg, #fffdf7 0%, #fff 45%);
+            box-shadow: 0 4px 20px rgba(212,168,83,0.25);
+        }
+        .plano-card.destaque::after {
+            content: 'Mais Popular';
+            position: absolute;
+            top: 14px;
+            right: -28px;
+            background: var(--dourado);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 4px 34px;
+            transform: rotate(45deg);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .plano-nome { font-weight: 700; font-size: 1rem; color: var(--cinza-700); text-transform: uppercase; letter-spacing: 0.03em; }
+        .plano-preco {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 900;
+            font-size: 2.4rem;
+            color: var(--cinza-900);
+            line-height: 1;
+        }
+        .plano-preco .moeda { font-size: 1.2rem; vertical-align: super; font-weight: 700; }
+        .plano-preco .periodo { font-size: 0.85rem; font-weight: 400; color: var(--cinza-400); }
+        .plano-lista { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .plano-lista li { font-size: 0.84rem; color: var(--cinza-600); display: flex; align-items: center; gap: 6px; }
+        .plano-lista li .check { color: var(--verde); font-weight: 700; }
+
+        /* ==================== ESCOLHA DE PERFIL ==================== */
+        .escolha-perfil {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        @media(min-width:640px) { .escolha-perfil { grid-template-columns: 1fr 1fr; } }
+        .perfil-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: var(--sombra-sm);
+            border: 2px solid var(--cinza-200);
+            transition: var(--transicao);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .perfil-card:hover { border-color: var(--verde-claro); transform: translateY(-4px); box-shadow: var(--sombra-md); }
+        .perfil-card .icone {
+            font-size: 3rem;
+            color: var(--verde);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--verde-bg);
+        }
+        .perfil-card h3 { font-size: 1.2rem; color: var(--cinza-800); }
+        .perfil-card p { font-size: 0.85rem; color: var(--cinza-500); }
+
+        /* ==================== FORMULÁRIO ALUNO ==================== */
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            box-shadow: var(--sombra-md);
+            border: 1px solid var(--cinza-100);
+            display: none;
+        }
+        .form-container.visivel { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-container .form-titulo {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--cinza-800);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--cinza-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--cinza-200);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--cinza-800);
+            background: var(--cinza-50);
+            transition: var(--transicao);
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--verde);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(5,150,105,0.06);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media(max-width:400px) { .form-row { grid-template-columns: 1fr; } }
+        .form-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+        .form-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: var(--verde-bg);
+            color: var(--verde-escuro);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 100px;
+        }
+        .form-tag button { background: none; border: none; cursor: pointer; color: var(--verde); font-size: 1rem; font-weight: 700; padding: 0; line-height: 1; margin-left: 1px; }
+        .form-erro { font-size: 0.7rem; color: var(--erro); display: none; }
+        .form-group.erro .form-erro { display: block; }
+
+        /* ==================== EXPLICADORES ==================== */
+        .explicadores-top {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .explicadores-top .filtros {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+        .explicadores-top .filtros select,
+        .explicadores-top .filtros input {
+            padding: 8px 12px;
+            border: 2px solid var(--cinza-200);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            background: #fff;
+            min-width: 120px;
+            flex: 1;
+        }
+        .resultados-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        @media(min-width:600px) { .resultados-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(min-width:1024px) { .resultados-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .card-exp {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--sombra-sm);
+            border: 1px solid var(--cinza-100);
+            transition: var(--transicao);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .card-exp:hover { box-shadow: var(--sombra-md); transform: translateY(-3px); border-color: var(--verde-claro); }
+        .card-exp-header { display: flex; align-items: center; gap: 10px; }
+        .card-exp-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-claro), var(--verde));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .card-exp-nome { font-weight: 700; font-size: 0.9rem; color: var(--cinza-900); }
+        .card-exp-nivel { font-size: 0.7rem; color: var(--cinza-400); text-transform: uppercase; letter-spacing: 0.03em; }
+        .card-exp-preco { font-weight: 800; color: var(--verde); font-size: 1rem; white-space: nowrap; margin-left: auto; }
+        .card-exp-materias { display: flex; flex-wrap: wrap; gap: 5px; }
+        .card-exp-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 100px;
+            background: var(--verde-bg);
+            color: var(--verde-escuro);
+        }
+        .card-exp-disp { font-size: 0.78rem; color: var(--cinza-500); display: flex; align-items: center; gap: 4px; }
+        .card-exp-disp .bolinha { width: 7px; height: 7px; border-radius: 50%; background: var(--sucesso); }
+        .card-exp-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+        .card-exp-acoes .btn { flex: 1; min-width: 70px; font-size: 0.75rem; padding: 6px 10px; min-height: 32px; }
+        .patente-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 1.5px solid;
+        }
+        .patente-none { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
+        .patente-bronze { background: linear-gradient(135deg,#fff7ed,#fed7aa); color:#9a3412; border-color:#c2410c; }
+        .patente-prata { background: linear-gradient(135deg,#f9fafb,#e5e7eb); color:#374151; border-color:#9ca3af; }
+        .patente-ouro { background: linear-gradient(135deg,#fefce8,#fde68a); color:#78350f; border-color:#d97706; }
+        .patente-platina { background: linear-gradient(135deg,#ecfeff,#a5f3fc); color:#155e75; border-color:#0891b2; }
+        .patente-diamante { background: linear-gradient(135deg,#faf5ff,#e9d5ff,#fce7f3); color:#6b21a8; border-color:#9333ea; }
+        .estrelas-linha { display: inline-flex; align-items: center; gap: 2px; color: var(--dourado); }
+        .estrelas-linha .fa-star, .estrelas-linha .fa-star-half-stroke { font-size: 0.8rem; }
+        .estrelas-linha .vazia { color: #e5e7eb; }
+        .rating-info { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--cinza-500); margin-top: 2px; }
+        .rating-info .nota { font-weight: 700; color: var(--cinza-700); font-size: 0.85rem; }
+        .card-exp-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+
+        /* ==================== SALA DE AULA ==================== */
+        .sala-aula {
+            background: #0f172a;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            color: #fff;
+            margin-top: 16px;
+        }
+        .sala-aula .video-container {
+            position: relative;
+            background: #1e293b;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sala-aula .video-container .placeholder { text-align: center; color: #94a3b8; }
+        .sala-aula .video-container .placeholder i { font-size: 4rem; display: block; margin-bottom: 12px; color: #475569; }
+        .sala-aula .video-container video { width: 100%; height: 100%; object-fit: cover; }
+        .sala-aula .video-container .remote-videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 8px;
+            padding: 8px;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .sala-aula .video-container .remote-videos video { border-radius: 8px; border: 2px solid rgba(255,255,255,0.1); width: 100%; height: auto; }
+        .sala-aula .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #1e293b;
+            justify-content: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .sala-aula .controles .btn { min-width: 44px; background: #334155; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.06); }
+        .sala-aula .controles .btn:hover { background: #475569; }
+        .sala-aula .controles .btn.ativo { background: var(--verde); color: #fff; }
+        .sala-aula .controles .btn.danger { background: #dc2626; color: #fff; }
+        .sala-aula .controles .btn.danger:hover { background: #b91c1c; }
+        .sala-aula .chat-area {
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            max-height: 200px;
+            background: #1e293b;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        @media(max-width:640px) { .sala-aula .chat-area { grid-template-columns: 1fr; max-height: 300px; } }
+        .sala-aula .chat-messages { padding: 12px; overflow-y: auto; max-height: 180px; display: flex; flex-direction: column; gap: 6px; }
+        .sala-aula .chat-messages .msg { padding: 6px 10px; border-radius: 8px; background: #334155; font-size: 0.8rem; max-width: 80%; word-break: break-word; }
+        .sala-aula .chat-messages .msg.self { background: var(--verde); align-self: flex-end; }
+        .sala-aula .chat-messages .msg .author { font-weight: 600; font-size: 0.7rem; color: #94a3b8; display: block; }
+        .sala-aula .chat-input { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .sala-aula .chat-input input { flex: 1; padding: 8px 12px; border-radius: 8px; border: none; background: #334155; color: #fff; font-family: inherit; font-size: 0.85rem; }
+        .sala-aula .chat-input input::placeholder { color: #94a3b8; }
+        .sala-aula .chat-input button { padding: 8px 16px; border-radius: 8px; border: none; background: var(--verde); color: #fff; font-weight: 600; cursor: pointer; }
+        .sala-aula .participants { padding: 12px; border-left: 1px solid rgba(255,255,255,0.05); max-height: 180px; overflow-y: auto; }
+        @media(max-width:640px) { .sala-aula .participants { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); max-height: 100px; } }
+        .sala-aula .participants .p-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.8rem; color: #e2e8f0; }
+        .sala-aula .participants .p-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sucesso); }
+        .sala-aula .participants .p-item .dot.inactive { background: #64748b; }
+
+        /* ==================== TOAST ==================== */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--cinza-900);
+            color: #fff;
+            padding: 11px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: var(--sombra-xl);
+            pointer-events: auto;
+            animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.5s forwards;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.sucesso { border-left: 4px solid var(--sucesso); }
+        .toast.erro { border-left: 4px solid var(--erro); }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-8px); } }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            background: var(--cinza-900);
+            color: var(--cinza-300);
+            padding: 40px 0 20px;
+            margin-top: 40px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+        @media(min-width:640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+        .footer-logo {
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .footer-logo .logo-icone { background: #fff; color: var(--verde); }
+        .footer-desc { font-size: 0.82rem; line-height: 1.6; color: var(--cinza-400); max-width: 250px; }
+        .footer-titulo { color: #fff; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .footer-links a { color: var(--cinza-400); text-decoration: none; font-size: 0.82rem; transition: var(--transicao); }
+        .footer-links a:hover { color: #fff; }
+        .footer-redes { display: flex; gap: 10px; margin-top: 4px; }
+        .footer-rede {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cinza-300);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: var(--transicao);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .footer-rede:hover { background: var(--verde); color: #fff; }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 16px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--cinza-500);
+        }
+
+        /* ==================== MODAIS ==================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.aberto { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: var(--sombra-xl);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-titulo { font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: var(--cinza-900); }
+        .modal-fechar {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--cinza-100);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transicao);
+            color: var(--cinza-600);
+        }
+        .modal-fechar:hover { background: var(--cinza-200); color: var(--cinza-900); }
+        .mpesa-box {
+            background: #fef2f2;
+            border: 2px dashed var(--mpesa);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--cinza-900);
+        }
+        .mpesa-passos { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.84rem; color: var(--cinza-600); }
+        .mpesa-passos li { display: flex; align-items: flex-start; gap: 6px; }
+        .mpesa-passos .num {
+            background: var(--mpesa);
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .modal-perfil { max-width: 560px; }
+        .perfil-header { display: flex; gap: 14px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--cinza-100); margin-bottom: 16px; }
+        .perfil-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde), var(--verde-claro));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .perfil-info h3 { margin: 0; font-size: 1.15rem; color: var(--cinza-700); }
+        .perfil-info .sub { font-size: 0.8rem; color: var(--cinza-500); margin-top: 2px; }
+        .perfil-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .perfil-stat-box { background: var(--cinza-100); border-radius: 10px; padding: 10px 12px; text-align: center; }
+        .perfil-stat-box .num { font-size: 1.3rem; font-weight: 800; color: var(--verde-escuro); }
+        .perfil-stat-box .lbl { font-size: 0.7rem; color: var(--cinza-500); text-transform: uppercase; letter-spacing: 0.5px; }
+        .perfil-acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .perfil-acoes .btn { flex: 1; min-width: 100px; font-size: 0.8rem; }
+        .aval-lista { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+        .aval-item { background: var(--cinza-100); border-radius: 10px; padding: 10px 12px; border-left: 3px solid var(--verde); }
+        .aval-item .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .aval-item .autor { font-weight: 600; font-size: 0.85rem; color: var(--cinza-700); }
+        .aval-item .data { font-size: 0.7rem; color: var(--cinza-400); }
+        .aval-item .coment { font-size: 0.8rem; color: var(--cinza-600); margin-top: 4px; line-height: 1.4; }
+        .form-estrelas { display: flex; gap: 6px; justify-content: center; margin: 8px 0; }
+        .form-estrelas i { font-size: 1.8rem; color: #e5e7eb; cursor: pointer; transition: transform 0.15s; }
+        .form-estrelas i.ativa { color: var(--dourado); }
+        .form-estrelas i:hover { transform: scale(1.15); }
+
+        .mensagem-aviso {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #92400e;
+            font-size: 0.85rem;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        /* ==================== RESPONSIVIDADE ==================== */
+        @media(max-width:380px) { .hero-titulo { font-size: 1.6rem; } .plano-preco { font-size: 2rem; } }
+        @media(max-width:640px) { .sala-aula .video-container .remote-videos { max-width: 100%; max-height: 120px; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } }
+
+        /* ==================== BOTÃO DEMO LOGIN ==================== */
+        .btn-demo-login {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+        .btn-demo-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-modo-demo {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+        .btn-modo-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(245, 158, 11, 0.4);
+        }
+
+        .demo-badge {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+        }
+
+        /* ==================== MODO DEMO ==================== */
+        .modo-demo-ativo .header {
+            border-bottom: 3px solid #f59e0b !important;
+        }
+
+        .demo-badge-header {
+            background: #f59e0b;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 100px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+            animation: pulse-demo 2s infinite;
+        }
+
+        @keyframes pulse-demo {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.95); }
+        }
+
+        /* ==================== DASHBOARD ADMIN ==================== */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media(min-width:768px) {
+            .dashboard-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--sombra-sm);
+            border: 1px solid var(--cinza-100);
+        }
+        .stat-card .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--verde-escuro);
+            display: block;
+        }
+        .stat-card .lbl {
+            font-size: 0.75rem;
+            color: var(--cinza-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-card.danger .num { color: var(--erro); }
+        .stat-card.warning .num { color: var(--dourado-escuro); }
+
+        .pagamento-item {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--cinza-100);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        @media(min-width:768px) {
+            .pagamento-item {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        .pagamento-item .info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        .pagamento-item .info .ref {
+            font-weight: 700;
+            color: var(--cinza-800);
+        }
+        .pagamento-item .info .detalhes {
+            font-size: 0.85rem;
+            color: var(--cinza-500);
+        }
+        .pagamento-item .acoes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pagamento-item .comprovativo {
+            max-width: 100px;
+            border-radius: 8px;
+            border: 1px solid var(--cinza-200);
+            cursor: pointer;
+        }
+        .pagamento-item .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .status-badge.pendente { background: #fef3c7; color: #92400e; }
+        .status-badge.validado { background: #d1fae5; color: #065f46; }
+        .status-badge.rejeitado { background: #fee2e2; color: #991b1b; }
+
+        .admin-only { display: none; }
+        .admin-only.visivel { display: block; }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff;
+        }
+        .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124, 58, 237, 0.4); }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="header" id="header">
+        <div class="container header-inner">
+            <a href="#" class="logo" aria-label="AprenderMZ">
+                <span class="logo-icone"><i class="fa-solid fa-graduation-cap"></i></span>
+                <span>Aprender<span class="logo-nome">MZ</span></span>
+            </a>
+            <nav class="nav-desktop">
+                <a href="#como-funciona" class="nav-link">Como funciona</a>
+                <a href="#materias" class="nav-link">Matérias</a>
+                <a href="#planos" class="nav-link">Planos</a>
+                <a href="#explicadores" class="nav-link">Explicadores</a>
+                <a href="#aulas-ao-vivo" class="nav-link">Aulas ao Vivo</a>
+                <a href="#dashboard" class="nav-link admin-only" id="nav-dashboard">Dashboard</a>
+                <span id="auth-badge-desktop" class="auth-badge" style="display:none;">
+                    <span class="avatar" id="user-avatar-init">U</span>
+                    <span id="user-name-display">Utilizador</span>
+                    <span id="user-tipo-display" style="font-size:0.65rem;opacity:0.7;"></span>
+                    <button id="btn-logout" class="btn btn-sm btn-secundario" style="padding:4px 10px;font-size:0.7rem;min-height:28px;">Sair</button>
+                </span>
+                <button id="btn-login-desktop" class="btn btn-primario btn-sm" onclick="abrirModalAuth()">Entrar</button>
+                <button class="btn btn-demo-login btn-sm" onclick="loginDemoAluno()" style="font-size:0.7rem;padding:4px 12px;min-height:32px;">
+                    <i class="fa-solid fa-user-graduate"></i> Demo Aluno
+                </button>
+                <button class="btn btn-modo-demo btn-sm" onclick="ativarModoDemo()" style="font-size:0.7rem;padding:4px 12px;min-height:32px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Demo
+                </button>
+            </nav>
+            <button class="btn-mobile" id="btn-menu" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </header>
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <div class="menu-mobile" id="menu-mobile">
+        <a href="#como-funciona" class="nav-link">Como funciona</a>
+        <a href="#materias" class="nav-link">Matérias</a>
+        <a href="#planos" class="nav-link">Planos</a>
+        <a href="#explicadores" class="nav-link">Explicadores</a>
+        <a href="#aulas-ao-vivo" class="nav-link">Aulas ao Vivo</a>
+        <a href="#dashboard" class="nav-link admin-only" id="nav-dashboard-mobile">Dashboard</a>
+        <div id="auth-section-mobile">
+            <button id="btn-login-mobile" class="btn btn-primario btn-bloco" onclick="abrirModalAuth()">Entrar</button>
+            <button class="btn btn-demo-login btn-bloco" onclick="loginDemoAluno()" style="margin-top:4px;">
+                <i class="fa-solid fa-user-graduate"></i> Demo Aluno
+            </button>
+            <button class="btn btn-modo-demo btn-bloco" onclick="ativarModoDemo()" style="margin-top:4px;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Demo
+            </button>
+        </div>
+        <div id="auth-info-mobile" style="display:none;text-align:center;padding:12px;background:var(--verde-bg);border-radius:12px;margin-top:6px;">
+            <span id="user-name-mobile" style="font-weight:600;color:var(--verde-escuro);"></span>
+            <span id="user-tipo-mobile" style="display:block;font-size:0.7rem;color:var(--cinza-500);"></span>
+            <button id="btn-logout-mobile" class="btn btn-sm btn-secundario" style="margin-top:6px;">Sair</button>
+        </div>
+    </div>
+
+    <main>
+        <!-- ==================== HERO ==================== -->
+        <section class="hero" id="hero">
+            <div class="hero-bg verde" aria-hidden="true"></div>
+            <div class="hero-bg dourado" aria-hidden="true"></div>
+            <div class="container hero-grid">
+                <div class="hero-texto">
+                    <span class="hero-badge"><i class="fa-solid fa-flag"></i> Primeira plataforma de tutoria de Moçambique</span>
+                    <h1 class="hero-titulo">O explicador certo, <span class="destaque">no momento certo</span></h1>
+                    <p class="hero-sub">Conectamos estudantes a explicadores de qualidade. Aulas online e presenciais. Pagamento seguro via M-Pesa.</p>
+                    <div class="hero-ctas">
+                        <a href="#explicadores" class="btn btn-primario btn-lg"><i class="fa-solid fa-user-graduate"></i> Encontrar Explicador</a>
+                        <a href="#registar" class="btn btn-dourado btn-lg"><i class="fa-solid fa-chalkboard-user"></i> Sou Explicador</a>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                        <button class="btn btn-demo-login btn-sm" onclick="loginDemoAluno()" style="font-size:0.8rem;">
+                            <i class="fa-solid fa-user-graduate"></i> Testar como Aluno
+                        </button>
+                        <button class="btn btn-modo-demo btn-sm" onclick="ativarModoDemo()" style="font-size:0.8rem;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Demo
+                        </button>
+                    </div>
+                    <div class="hero-stats">
+                        <div><span class="hero-stat-num">+200</span><span class="hero-stat-lbl">Explicadores</span></div>
+                        <div><span class="hero-stat-num">+3.000</span><span class="hero-stat-lbl">Aulas dadas</span></div>
+                        <div><span class="hero-stat-num">4.8 <i class="fa-solid fa-star" style="font-size:0.8rem;color:var(--dourado);"></i></span><span class="hero-stat-lbl">Avaliação</span></div>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="hero-card-row">
+                        <div class="hero-card-avatar">AM</div>
+                        <div class="hero-card-info"><div class="hero-card-nome">Ana Mondlane</div><div class="hero-card-disc">Matemática • 12ª Classe</div></div>
+                        <div class="hero-card-preco">500 MTN/h</div>
+                    </div>
+                    <div class="hero-card-row">
+                        <div class="hero-card-avatar dourado">PC</div>
+                        <div class="hero-card-info"><div class="hero-card-nome">Paulo Chauke</div><div class="hero-card-disc">Cálculo • Universitário</div></div>
+                        <div class="hero-card-preco">750 MTN/h</div>
+                    </div>
+                    <div class="hero-card-row">
+                        <div class="hero-card-avatar">CT</div>
+                        <div class="hero-card-info"><div class="hero-card-nome">Carla Tembe</div><div class="hero-card-disc">Inglês • Todos os níveis</div></div>
+                        <div class="hero-card-preco">400 MTN/h</div>
+                    </div>
+                    <div style="text-align:center;font-size:0.75rem;color:var(--cinza-400);"><i class="fa-solid fa-bolt"></i> Aulas via WhatsApp, Google Meet ou Agora</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== COMO FUNCIONA ==================== -->
+        <section class="seccao seccao-cinza" id="como-funciona">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-bolt"></i> Simples e rápido</span>
+                    <h2 class="seccao-titulo">Como funciona a AprenderMZ</h2>
+                    <p class="seccao-sub">Três passos para começares a aprender ou a ensinar hoje mesmo.</p>
+                </div>
+                <div class="passos-grid">
+                    <div class="passo-card">
+                        <div class="passo-num">1</div>
+                        <h3>Escolhe o explicador</h3>
+                        <p>Pesquisa por disciplina, classe ou preço. Lê avaliações reais de estudantes.</p>
+                    </div>
+                    <div class="passo-card">
+                        <div class="passo-num">2</div>
+                        <h3>Agenda a aula</h3>
+                        <p>Escolhe o dia e a hora. O explicador confirma em minutos. Tudo pelo telemóvel.</p>
+                    </div>
+                    <div class="passo-card">
+                        <div class="passo-num">3</div>
+                        <h3>Paga com M-Pesa</h3>
+                        <p>Pagamento seguro via M-Pesa. Só pagas depois do explicador confirmar a aula.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MATÉRIAS ==================== -->
+        <section class="seccao" id="materias">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-book-open"></i> Disciplinas</span>
+                    <h2 class="seccao-titulo">Matérias disponíveis</h2>
+                    <p class="seccao-sub">Do secundário à universidade, temos explicadores para as matérias mais procuradas.</p>
+                </div>
+                <div class="materias-grid" id="materias-grid">
+                    <!-- Gerado por JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PLANOS ==================== -->
+        <section class="seccao seccao-cinza" id="planos">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-gem"></i> Planos</span>
+                    <h2 class="seccao-titulo">Escolhe o teu plano</h2>
+                    <p class="seccao-sub">Começa gratuito. Evolui quando precisares de mais vantagens.</p>
+                </div>
+                <div class="planos-grid">
+                    <div class="plano-card">
+                        <div class="plano-nome"><i class="fa-solid fa-seedling"></i> Básico</div>
+                        <div class="plano-preco"><span class="moeda">0</span> MTN<span class="periodo">/grátis</span></div>
+                        <ul class="plano-lista">
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Pesquisa ilimitada</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Agendamento básico</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> 1 aula experimental grátis</li>
+                            <li style="color:var(--cinza-300);">— Aulas em grupo</li>
+                            <li style="color:var(--cinza-300);">— Suporte prioritário</li>
+                        </ul>
+                        <a href="#explicadores" class="btn btn-secundario btn-bloco">Começar Grátis</a>
+                    </div>
+                    <div class="plano-card destaque">
+                        <div class="plano-nome"><i class="fa-solid fa-star"></i> Premium</div>
+                        <div class="plano-preco"><span class="moeda">350</span> MTN<span class="periodo">/mês</span></div>
+                        <ul class="plano-lista">
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Tudo do plano Básico</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Aulas em grupo (até 5)</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Descontos exclusivos</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Suporte prioritário 24h</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Certificado digital</li>
+                        </ul>
+                        <a href="#explicadores" class="btn btn-primario btn-bloco">Assinar Premium</a>
+                    </div>
+                </div>
+                <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:var(--cinza-500);">
+                    <i class="fa-solid fa-building-columns"></i> Pagamento seguro via <strong>M-Pesa, eMola e mKesh</strong>.
+                </p>
+            </div>
+        </section>
+
+        <!-- ==================== REGISTO ==================== -->
+        <section class="seccao" id="registar">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-user-plus"></i> Registo</span>
+                    <h2 class="seccao-titulo">Junte-se à comunidade</h2>
+                    <p class="seccao-sub">Escolha o seu perfil e comece a aprender ou ensinar hoje.</p>
+                </div>
+
+                <div class="escolha-perfil" id="escolha-perfil">
+                    <div class="perfil-card" data-perfil="estudante">
+                        <div class="icone"><i class="fa-solid fa-user-graduate"></i></div>
+                        <h3>Sou Estudante</h3>
+                        <p>Quero encontrar um explicador para me ajudar nos estudos.</p>
+                        <button class="btn btn-primario btn-bloco">Quero Aprender</button>
+                    </div>
+                    <div class="perfil-card" data-perfil="explicador">
+                        <div class="icone"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <h3>Sou Explicador</h3>
+                        <p>Quero ensinar e ganhar dinheiro com o meu conhecimento.</p>
+                        <button class="btn btn-dourado btn-bloco">Quero Ensinar</button>
+                    </div>
+                </div>
+
+                <!-- Formulário de Aluno -->
+                <div class="form-container" id="form-container-aluno">
+                    <div class="form-titulo">Registar como Estudante</div>
+                    <form id="form-registar-aluno" novalidate>
+                        <div class="form-group">
+                            <label class="form-label" for="a-nome">Nome completo *</label>
+                            <input type="text" class="form-input" id="a-nome" placeholder="Ex: João Silva" required minlength="3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="a-email">Email *</label>
+                            <input type="email" class="form-input" id="a-email" placeholder="joao@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="a-password">Palavra-passe *</label>
+                            <input type="password" class="form-input" id="a-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="a-tel">WhatsApp</label>
+                            <input type="tel" class="form-input" id="a-tel" placeholder="841234567" pattern="8[234567]\d{7}">
+                            <span class="form-erro">Número inválido. Ex: 841234567</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="a-nivel">Nível de ensino *</label>
+                                <select class="form-select" id="a-nivel" required>
+                                    <option value="">Selecionar...</option>
+                                    <option value="8classe">8ª Classe</option>
+                                    <option value="9classe">9ª Classe</option>
+                                    <option value="10classe">10ª Classe</option>
+                                    <option value="11classe">11ª Classe</option>
+                                    <option value="12classe">12ª Classe</option>
+                                    <option value="universitario">Universitário</option>
+                                    <option value="posgraduacao">Pós-graduação</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="a-cidade">Cidade *</label>
+                                <select class="form-select" id="a-cidade" required>
+                                    <option value="">Selecionar...</option>
+                                    <option value="maputo">Maputo</option>
+                                    <option value="matola">Matola</option>
+                                    <option value="beira">Beira</option>
+                                    <option value="nampula">Nampula</option>
+                                    <option value="tete">Tete</option>
+                                    <option value="quelimane">Quelimane</option>
+                                    <option value="pemba">Pemba</option>
+                                    <option value="xai-xai">Xai-Xai</option>
+                                    <option value="outra">Outra</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="a-escola">Escola/Universidade</label>
+                            <input type="text" class="form-input" id="a-escola" placeholder="Ex: Escola Secundária da Matola">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="a-materias">Matérias de interesse</label>
+                            <div style="display:flex;gap:4px;">
+                                <input type="text" class="form-input" id="a-mat-input" placeholder="Ex: Matemática" style="flex:1;">
+                                <button type="button" class="btn btn-primario btn-sm" id="btn-add-mat-aluno">+ Adicionar</button>
+                            </div>
+                            <div class="form-tags" id="a-mat-tags"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primario btn-bloco"><i class="fa-solid fa-circle-check"></i> Criar Conta</button>
+                        <button type="button" class="btn btn-secundario btn-bloco" id="btn-cancelar-aluno" style="margin-top:4px;">Cancelar</button>
+                    </form>
+                </div>
+
+                <!-- Formulário de Explicador -->
+                <div class="form-container" id="form-container-explicador">
+                    <div class="form-titulo">Registar como Explicador</div>
+                    <form id="form-registar-explicador" novalidate>
+                        <div class="form-group">
+                            <label class="form-label" for="r-nome">Nome completo *</label>
+                            <input type="text" class="form-input" id="r-nome" placeholder="Ex: Ana Mondlane" required minlength="3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="r-email">Email *</label>
+                            <input type="email" class="form-input" id="r-email" placeholder="ana@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="r-password">Palavra-passe *</label>
+                            <input type="password" class="form-input" id="r-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="r-tel">WhatsApp *</label>
+                            <input type="tel" class="form-input" id="r-tel" placeholder="841234567" required pattern="8[234567]\d{7}">
+                            <span class="form-erro">Número inválido. Ex: 841234567</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Matérias *</label>
+                            <div style="display:flex;gap:4px;">
+                                <input type="text" class="form-input" id="r-mat-input" placeholder="Ex: Matemática" style="flex:1;">
+                                <button type="button" class="btn btn-primario btn-sm" id="btn-add-mat-explicador">+ Adicionar</button>
+                            </div>
+                            <div class="form-tags" id="r-mat-tags"></div>
+                            <span class="form-erro" id="erro-mats">Adicione pelo menos 1 matéria.</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="r-nivel">Nível *</label>
+                            <select class="form-select" id="r-nivel" required>
+                                <option value="">Selecionar...</option>
+                                <option value="secundario">Secundário</option>
+                                <option value="universitario">Universitário</option>
+                                <option value="ambos">Ambos</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="r-preco">Preço/h (MTN) *</label>
+                                <input type="number" class="form-input" id="r-preco" placeholder="500" min="100" max="5000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="r-disp">Disponibilidade *</label>
+                                <select class="form-select" id="r-disp" required>
+                                    <option value="">Selecionar...</option>
+                                    <option value="manha">Manhã</option>
+                                    <option value="tarde">Tarde</option>
+                                    <option value="noite">Noite</option>
+                                    <option value="manha-tarde">Manhã e Tarde</option>
+                                    <option value="flexivel">Flexível</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="r-desc">Descrição (opcional)</label>
+                            <textarea class="form-textarea" id="r-desc" maxlength="300" rows="2" placeholder="Conte-nos sobre a sua experiência..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primario btn-bloco"><i class="fa-solid fa-circle-check"></i> Registar</button>
+                        <button type="button" class="btn btn-secundario btn-bloco" id="btn-cancelar-explicador" style="margin-top:4px;">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== EXPLICADORES ==================== -->
+        <section class="seccao seccao-cinza" id="explicadores">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-people-arrows"></i> Encontrar</span>
+                    <h2 class="seccao-titulo">Explicadores disponíveis</h2>
+                    <p class="seccao-sub">Filtre por matéria, orçamento ou horário para encontrar o tutor ideal.</p>
+                </div>
+
+                <div class="explicadores-top">
+                    <div class="filtros">
+                        <select id="p-mat"><option value="">Todas as matérias</option></select>
+                        <input type="number" id="p-orc" placeholder="Orçamento máx (MTN/h)" min="0" max="5000">
+                        <select id="p-hor"><option value="">Qualquer horário</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option><option value="flexivel">Flexível</option></select>
+                        <button class="btn btn-primario btn-sm" id="btn-pesquisar"><i class="fa-solid fa-search"></i> Pesquisar</button>
+                        <button class="btn btn-secundario btn-sm" id="btn-limpar-filtros"><i class="fa-solid fa-broom"></i> Limpar</button>
+                    </div>
+                    <span style="background:var(--verde);color:#fff;padding:4px 14px;border-radius:100px;font-size:0.8rem;font-weight:600;white-space:nowrap;" id="badge-count">0</span>
+                </div>
+
+                <div class="resultados-grid" id="resultados-grid">
+                    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--cinza-400);" id="estado-vazio">
+                        <span style="font-size:3rem;color:var(--cinza-300);"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <h3 style="color:var(--cinza-600);">Nenhum explicador</h3>
+                        <p style="font-size:0.85rem;">Registe-se como explicador ou clique em "Dados Demo".</p>
+                        <button class="btn btn-secundario btn-sm" id="btn-demo" style="margin-top:8px;"><i class="fa-solid fa-flask"></i> Inserir Dados Demo</button>
+                        <button class="btn btn-secundario btn-sm" id="btn-limpar-tudo" style="margin-top:4px;"><i class="fa-solid fa-trash"></i> Limpar Tudo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== AULAS AO VIVO ==================== -->
+        <section class="seccao" id="aulas-ao-vivo">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-video"></i> Ao Vivo</span>
+                    <h2 class="seccao-titulo">Sala de Aula Interativa</h2>
+                    <p class="seccao-sub">Aulas ao vivo com vídeo, chat e partilha de ecrã. Tudo integrado.</p>
+                </div>
+
+                <div id="sala-nao-autenticado" style="text-align:center;padding:48px 20px;background:#fff;border-radius:var(--radius-lg);border:1px solid var(--cinza-100);">
+                    <span style="font-size:3rem;color:var(--cinza-300);"><i class="fa-solid fa-lock"></i></span>
+                    <h3 style="color:var(--cinza-600);margin:16px 0 8px;">Autentique-se para entrar na aula</h3>
+                    <p style="color:var(--cinza-500);margin-bottom:16px;">Faça login para aceder às aulas ao vivo e interagir com os explicadores.</p>
+                    <button id="btn-login-sala" class="btn btn-primario btn-lg" onclick="abrirModalAuth()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar</button>
+                    <button class="btn btn-demo-login btn-sm" onclick="loginDemoAluno()" style="margin-top:8px;">
+                        <i class="fa-solid fa-user-graduate"></i> Testar como Aluno
+                    </button>
+                    <button class="btn btn-modo-demo btn-sm" onclick="ativarModoDemo()" style="margin-top:8px;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Demo
+                    </button>
+                </div>
+
+                <div id="sala-sem-aula" style="display:none;text-align:center;padding:48px 20px;background:#fff;border-radius:var(--radius-lg);border:1px solid var(--cinza-100);">
+                    <span style="font-size:3rem;color:var(--cinza-300);"><i class="fa-solid fa-chalkboard-user"></i></span>
+                    <h3 style="color:var(--cinza-600);margin:16px 0 8px;">Pronto para a sua aula?</h3>
+                    <p style="color:var(--cinza-500);margin-bottom:16px;">Selecione um explicador na plataforma e clique em "Aula ao Vivo" para iniciar.</p>
+                    <a href="#explicadores" class="btn btn-primario btn-lg"><i class="fa-solid fa-search"></i> Encontrar Explicador</a>
+                </div>
+
+                <div id="sala-ativa" class="sala-aula" style="display:none;">
+                    <div class="video-container" id="video-container">
+                        <div class="placeholder" id="video-placeholder">
+                            <i class="fa-solid fa-video-slash"></i>
+                            <p>Aguardando conexão...</p>
+                        </div>
+                        <video id="video-self" autoplay muted playsinline style="display:none;"></video>
+                        <div class="remote-videos" id="remote-videos"></div>
+                    </div>
+                    <div class="controles" id="controles-sala">
+                        <button class="btn ativo" id="btn-mic" title="Microfone"><i class="fa-solid fa-microphone"></i></button>
+                        <button class="btn ativo" id="btn-cam" title="Câmara"><i class="fa-solid fa-video"></i></button>
+                        <button class="btn" id="btn-screen" title="Partilhar Ecrã"><i class="fa-solid fa-desktop"></i></button>
+                        <button class="btn" id="btn-whiteboard" title="Whiteboard"><i class="fa-solid fa-pen-ruler"></i></button>
+                        <button class="btn danger" id="btn-sair-sala" title="Sair da Sala"><i class="fa-solid fa-phone-slash"></i></button>
+                    </div>
+                    <div class="chat-area">
+                        <div>
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="msg"><span class="author">Sistema</span> Bem-vindo à sala de aula!</div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" id="chat-input" placeholder="Escreva uma mensagem...">
+                                <button id="btn-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                        <div class="participants" id="participants-list">
+                            <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Participantes</div>
+                            <div class="p-item"><span class="dot"></span> Você (Professor)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== DASHBOARD ADMIN ==================== -->
+        <section class="seccao seccao-cinza admin-only" id="dashboard">
+            <div class="container">
+                <div class="seccao-header">
+                    <span class="hero-badge"><i class="fa-solid fa-gauge-high"></i> Administração</span>
+                    <h2 class="seccao-titulo">Painel de Controlo</h2>
+                    <p class="seccao-sub">Gerencie pagamentos, comissões e aulas.</p>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="dashboard-stats" id="dashboard-stats">
+                    <div class="stat-card danger">
+                        <span class="num" id="stat-pendentes">0</span>
+                        <span class="lbl">Pagamentos Pendentes</span>
+                    </div>
+                    <div class="stat-card warning">
+                        <span class="num" id="stat-comissao">0 MTN</span>
+                        <span class="lbl">Comissão Total</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="num" id="stat-pagos">0 MTN</span>
+                        <span class="lbl">Pago a Professores</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="num" id="stat-aulas">0</span>
+                        <span class="lbl">Aulas Confirmadas</span>
+                    </div>
+                </div>
+
+                <!-- Lista de Pagamentos -->
+                <div class="painel">
+                    <div class="painel-titulo"><i class="fa-solid fa-list-check"></i> Pagamentos Pendentes</div>
+                    <div id="lista-pagamentos">
+                        <div style="text-align:center;padding:40px;color:var(--cinza-400);">
+                            <i class="fa-solid fa-check-circle" style="font-size:2rem;color:var(--sucesso);"></i>
+                            <p style="margin-top:8px;">Nenhum pagamento pendente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Pagamentos -->
+                <div class="painel">
+                    <div class="painel-titulo"><i class="fa-solid fa-clock-rotate-left"></i> Histórico de Pagamentos</div>
+                    <div id="historico-pagamentos">
+                        <div style="text-align:center;padding:20px;color:var(--cinza-400);">
+                            <p>Carregando histórico...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== MODAIS ==================== -->
+    <!-- M-Pesa -->
+    <div class="modal-overlay" id="modal-mpesa">
+        <div class="modal">
+            <button class="modal-fechar" onclick="fecharModalPagamento()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-titulo"><i class="fa-solid fa-mobile-screen-button"></i> Pagamento via M-Pesa</div>
+            <div class="mpesa-box" id="mpesa-numero">84XXXXXXX</div>
+            <p style="font-size:0.85rem;font-weight:600;text-align:center;">Valor: <span id="mpesa-valor" style="color:var(--verde);">500 MTN</span></p>
+            <ol class="mpesa-passos">
+                <li><span class="num">1</span> Vai ao menu M-Pesa no teu telemóvel</li>
+                <li><span class="num">2</span> Escolhe "Enviar Dinheiro"</li>
+                <li><span class="num">3</span> Insere o número acima</li>
+                <li><span class="num">4</span> Insere o valor indicado</li>
+                <li><span class="num">5</span> Guarda o ID da transação (ex: MP123456)</li>
+            </ol>
+            <div class="form-group"><label class="form-label">ID da Transação M-Pesa</label><input type="text" class="form-input" id="mpesa-id" placeholder="Ex: MP123456789"></div>
+            <button class="btn btn-mpesa btn-bloco" id="btn-confirmar-pagamento"><i class="fa-solid fa-circle-check"></i> Confirmar Pagamento</button>
+        </div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="modal-overlay" id="modal-perfil-overlay">
+        <div class="modal modal-perfil">
+            <button class="modal-fechar" onclick="fecharPerfil()"><i class="fa-solid fa-xmark"></i></button>
+            <div id="modal-perfil-conteudo"></div>
+        </div>
+    </div>
+
+    <!-- Avaliar -->
+    <div class="modal-overlay" id="modal-aval-overlay">
+        <div class="modal" style="max-width:440px;">
+            <button class="modal-fechar" onclick="fecharModalAvaliar()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-titulo"><i class="fa-solid fa-star"></i> Avaliar <span id="aval-nome-alvo"></span></div>
+            
+            <div id="aval-mensagem" class="mensagem-aviso" style="display:none;">
+                <i class="fa-solid fa-lock"></i> Apenas alunos autenticados podem avaliar. 
+                <a href="#" onclick="fecharModalAvaliar(); abrirModalAuth(); return false;" style="color:var(--verde);font-weight:600;">Faça login</a>
+            </div>
+
+            <div id="aval-form">
+                <div class="form-group">
+                    <label class="form-label">Nota</label>
+                    <div class="form-estrelas" id="form-estrelas">
+                        <i class="fa-solid fa-star" data-nota="1"></i>
+                        <i class="fa-solid fa-star" data-nota="2"></i>
+                        <i class="fa-solid fa-star" data-nota="3"></i>
+                        <i class="fa-solid fa-star" data-nota="4"></i>
+                        <i class="fa-solid fa-star" data-nota="5"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="aval-autor">Seu nome</label>
+                    <input type="text" class="form-input" id="aval-autor" placeholder="Ex: João S." maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="aval-coment">Comentário</label>
+                    <textarea class="form-textarea" id="aval-coment" rows="3" maxlength="240" placeholder="Como foi a experiência?"></textarea>
+                </div>
+                <button class="btn btn-primario btn-bloco" id="btn-enviar-aval"><i class="fa-solid fa-paper-plane"></i> Enviar Avaliação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth (Login) -->
+    <div class="modal-overlay" id="modal-auth">
+        <div class="modal" style="max-width:400px;">
+            <button class="modal-fechar" onclick="fecharModalAuth()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-titulo"><i class="fa-solid fa-user"></i> Entrar na AprenderMZ</div>
+            <div id="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="auth-email" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Palavra-passe</label>
+                    <input type="password" class="form-input" id="auth-password" placeholder="••••••••" minlength="6">
+                </div>
+                <button class="btn btn-primario btn-bloco" id="btn-auth-login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar</button>
+                <p style="text-align:center;font-size:0.75rem;color:var(--cinza-500);margin-top:8px;">
+                    Não tem conta? <a href="#registar" onclick="fecharModalAuth(); document.getElementById('registar').scrollIntoView({behavior:'smooth'}); return false;" style="color:var(--verde);font-weight:600;">Registe-se</a>
+                </p>
+            </div>
+            <div id="auth-loading" style="display:none;text-align:center;padding:20px;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;color:var(--verde);"></i>
+                <p style="margin-top:8px;">A processar...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Comprovativo -->
+    <div class="modal-overlay" id="modal-comprovativo">
+        <div class="modal" style="max-width:440px;">
+            <button class="modal-fechar" onclick="fecharModalComprovativo()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-titulo"><i class="fa-solid fa-upload"></i> Enviar Comprovativo</div>
+            
+            <div class="form-group">
+                <label class="form-label">Professor</label>
+                <p id="comp-professor" style="font-weight:600;color:var(--cinza-800);">---</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Valor a pagar</label>
+                <p id="comp-valor" style="font-weight:700;color:var(--verde);font-size:1.2rem;">---</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Número M-Pesa (para pagamento)</label>
+                <p style="font-weight:600;color:var(--cinza-800);">84XXXXXXX</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Referência da aula</label>
+                <p id="comp-referencia" style="font-weight:600;color:var(--cinza-800);">---</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Comprovativo (foto do comprovativo M-Pesa)</label>
+                <input type="file" class="form-input" id="comp-imagem" accept="image/*" style="padding:8px;">
+            </div>
+            <input type="hidden" id="comp-aula-id">
+            <input type="hidden" id="comp-valor-input">
+            <input type="hidden" id="comp-professor-id">
+            
+            <button class="btn btn-primario btn-bloco" onclick="enviarComprovativo()">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Comprovativo
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST ==================== -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo"><span class="logo-icone"><i class="fa-solid fa-graduation-cap"></i></span>AprenderMZ</div>
+                    <p class="footer-desc">A maior plataforma de tutoria online de Moçambique. Conectando conhecimento, uma aula de cada vez.</p>
+                    <div class="footer-redes">
+                        <a href="#" class="footer-rede" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="footer-rede" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="footer-rede" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-titulo">Links</div>
+                    <ul class="footer-links">
+                        <li><a href="#como-funciona">Como funciona</a></li>
+                        <li><a href="#materias">Matérias</a></li>
+                        <li><a href="#planos">Planos</a></li>
+                        <li><a href="#explicadores">Explicadores</a></li>
+                        <li><a href="#aulas-ao-vivo">Aulas ao Vivo</a></li>
+                        <li><a href="#dashboard" class="admin-only">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-titulo">Contactos</div>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-envelope"></i> info@aprendermz.co.mz</li>
+                        <li><i class="fa-solid fa-phone"></i> +258 84 000 0000</li>
+                        <li><i class="fa-solid fa-location-dot"></i> Maputo, Moçambique</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">© 2025 AprenderMZ. Feito com <i class="fa-solid fa-heart" style="color:var(--verde-claro);"></i> em Moçambique.</div>
+        </div>
+    </footer>
+
+    <script>
+    // ==============================================================
+    // CONFIGURAÇÕES
+    // ==============================================================
+    const SUPABASE_URL = 'https://cxsksktpwwjvrrclgwuc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_KHT0QKFZjxsjtdlh0sv3QA_jFIIf2Ix';
+    const AGORA_EDGE_FUNCTION = 'create-agora-token';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ==============================================================
+    // ESTADO
+    // ==============================================================
+    const estado = {
+        explicadores: [],
+        resultados: [],
+        materiasTempExplicador: [],
+        materiasTempAluno: [],
+        pagamentoAtual: null,
+        user: null,
+        userTipo: null,
+        salaAtiva: false,
+        salaId: null,
+        tokenAgora: null,
+        clientAgora: null,
+        localStream: null,
+        remoteStreams: {},
+        isAdmin: false,
+        modoDemo: false,
+    };
+
+    // ==============================================================
+    // CONSTANTES
+    // ==============================================================
+    const STORAGE_KEY = 'aprendermz_data';
+    const MATERIAS_COMUNS = ['Matemática', 'Física', 'Química', 'Biologia', 'Português', 'Inglês', 'Francês',
+        'Changana', 'História', 'Geografia', 'Economia', 'Contabilidade', 'Informática', 'Cálculo',
+        'Álgebra', 'Estatística', 'Programação'
+    ];
+    const DISP_LABELS = {
+        manha: 'Manhã',
+        tarde: 'Tarde',
+        noite: 'Noite',
+        'manha-tarde': 'Manhã e Tarde',
+        flexivel: 'Flexível'
+    };
+    const NIVEL_LABELS = { secundario: 'Secundário', universitario: 'Universitário', ambos: 'Ambos' };
+    const COMISSAO_PERCENT = 0.10;
+
+    const DADOS_DEMO_EXPLICADORES = [
+        { id: 'd1', nome: 'Ana Mondlane', telefone: '841234567', materias: ['Matemática', 'Física'],
+            nivel: 'secundario', preco: 500, disponibilidade: 'manha-tarde',
+            descricao: '5 anos de experiência. Aulas em Maputo ou online.',
+            avaliacoes: [{ autor: 'João Silva', nota: 5, coment: 'Excelente!', data: '2025-09-03' },
+            { autor: 'Maria Santos', nota: 4, coment: 'Muito boa!', data: '2025-09-18' }] },
+        { id: 'd2', nome: 'Paulo Chauke', telefone: '842345678', materias: ['Física', 'Cálculo', 'Álgebra'],
+            nivel: 'universitario', preco: 750, disponibilidade: 'noite',
+            descricao: 'Finalista Engenharia UEM.',
+            avaliacoes: [{ autor: 'Ricardo N.', nota: 5, coment: 'Explica cálculo como ninguém.',
+                data: '2025-07-20' }] },
+        { id: 'd3', nome: 'Carla Tembe', telefone: '843456789', materias: ['Inglês', 'Português', 'Changana'],
+            nivel: 'ambos', preco: 400, disponibilidade: 'flexivel',
+            descricao: 'Aulas práticas com conversação.',
+            avaliacoes: [{ autor: 'Helena S.', nota: 5, coment: 'Conversação incrível!', data: '2025-06-11' },
+            { autor: 'João V.', nota: 5, coment: 'Aprendi Changana em 3 meses.', data: '2025-08-02' }] },
+        { id: 'd4', nome: 'João Macamo', telefone: '844567890', materias: ['Química', 'Biologia'],
+            nivel: 'secundario', preco: 350, disponibilidade: 'tarde',
+            descricao: 'Professor do secundário. Zona da Matola.',
+            avaliacoes: [{ autor: 'Rita M.', nota: 4, coment: 'Bom professor.', data: '2025-09-01' }] },
+        { id: 'd5', nome: 'Lúcia Nhavoto', telefone: '845678901', materias: ['Economia', 'Contabilidade', 'Matemática'],
+            nivel: 'universitario', preco: 600, disponibilidade: 'manha',
+            descricao: 'Mestre em Economia UEM.',
+            avaliacoes: [{ autor: 'André C.', nota: 5, coment: 'Óptima em Contabilidade!', data: '2025-07-15' }] },
+    ];
+
+    // ==============================================================
+    // HELPERS
+    // ==============================================================
+    function toast(msg, tipo = 'sucesso') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = 'toast ' + tipo;
+        t.innerHTML = (tipo === 'sucesso' ? '<i class="fa-solid fa-circle-check"></i> ' : '<i class="fa-solid fa-circle-xmark"></i> ') + msg;
+        c.appendChild(t);
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 3000);
+    }
+
+    function escaparHTML(t) { const d = document.createElement('div');
+        d.textContent = t; return d.innerHTML; }
+
+    function carregarDados() {
+        try {
+            const d = localStorage.getItem(STORAGE_KEY);
+            const arr = d ? JSON.parse(d) : [];
+            arr.forEach(e => { if (!Array.isArray(e.avaliacoes)) e.avaliacoes = []; });
+            return arr;
+        } catch (e) { return []; }
+    }
+
+    function salvarDados() { localStorage.setItem(STORAGE_KEY, JSON.stringify(estado.explicadores)); }
+
+    function calcularMedia(exp) {
+        const av = exp.avaliacoes || [];
+        if (av.length === 0) return 0;
+        return av.reduce((s, a) => s + (parseFloat(a.nota) || 0), 0) / av.length;
+    }
+
+    const PATENTES = [
+        { id: 'diamante', nome: 'Diamante', cor: 'diamante', min: 4.8, minAv: 8 },
+        { id: 'platina', nome: 'Platina', cor: 'platina', min: 4.5, minAv: 6 },
+        { id: 'ouro', nome: 'Ouro', cor: 'ouro', min: 4.0, minAv: 4 },
+        { id: 'prata', nome: 'Prata', cor: 'prata', min: 3.5, minAv: 3 },
+        { id: 'bronze', nome: 'Bronze', cor: 'bronze', min: 3.0, minAv: 1 },
+        { id: 'nenhum', nome: 'Sem Patente', cor: 'none', min: 0, minAv: 0 },
+    ];
+
+    function obterPatente(media, totalAv) {
+        if (totalAv === 0) return PATENTES[PATENTES.length - 1];
+        for (const p of PATENTES) {
+            if (media >= p.min && totalAv >= p.minAv) return p;
+        }
+        return PATENTES[PATENTES.length - 1];
+    }
+
+    function renderEstrelas(media) {
+        let html = '<span class="estrelas-linha">';
+        const cheias = Math.floor(media);
+        const meia = (media - cheias) >= 0.25 && (media - cheias) < 0.75;
+        const cheiasFinais = (media - cheias) >= 0.75 ? cheias + 1 : cheias;
+        const meiaFinal = meia ? 1 : 0;
+        const vazias = 5 - cheiasFinais - meiaFinal;
+        for (let i = 0; i < cheiasFinais; i++) html += '<i class="fa-solid fa-star"></i>';
+        if (meiaFinal) html += '<i class="fa-solid fa-star-half-stroke"></i>';
+        for (let i = 0; i < vazias; i++) html += '<i class="fa-regular fa-star vazia"></i>';
+        html += '</span>';
+        return html;
+    }
+
+    function gerarReferencia() {
+        const data = new Date();
+        const ano = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const dia = String(data.getDate()).padStart(2, '0');
+        const sequencial = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+        return `APR-${ano}${mes}${dia}-${sequencial}`;
+    }
+
+    // ==============================================================
+    // RENDERIZAÇÃO
+    // ==============================================================
+    function renderMaterias() {
+        const grid = document.getElementById('materias-grid');
+        grid.innerHTML = '';
+        MATERIAS_COMUNS.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'materia-card';
+            const icons = {
+                'Matemática': 'fa-square-root-variable',
+                'Física': 'fa-atom',
+                'Química': 'fa-flask',
+                'Biologia': 'fa-dna',
+                'Português': 'fa-book',
+                'Inglês': 'fa-language',
+                'Francês': 'fa-font',
+                'Changana': 'fa-comments',
+                'História': 'fa-landmark',
+                'Geografia': 'fa-globe',
+                'Economia': 'fa-chart-line',
+                'Contabilidade': 'fa-calculator',
+                'Informática': 'fa-laptop-code',
+                'Cálculo': 'fa-calculator',
+                'Álgebra': 'fa-square-root-variable',
+                'Estatística': 'fa-chart-bar',
+                'Programação': 'fa-code'
+            };
+            const icon = icons[m] || 'fa-book-open';
+            card.innerHTML = `<span class="materia-icone"><i class="fa-solid ${icon}"></i></span><span>${m}</span>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderizarResultados(lista) {
+        const grid = document.getElementById('resultados-grid');
+        const badge = document.getElementById('badge-count');
+        grid.innerHTML = '';
+        if (!lista || lista.length === 0) {
+            const d = document.createElement('div');
+            d.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px;color:var(--cinza-400);';
+            d.innerHTML = `
+                <span style="font-size:3rem;color:var(--cinza-300);"><i class="fa-solid fa-chalkboard-user"></i></span>
+                <h3 style="color:var(--cinza-600);">Nenhum explicador</h3>
+                <p style="font-size:0.85rem;">Registe-se como explicador ou clique em "Dados Demo".</p>
+                <button class="btn btn-secundario btn-sm" id="btn-demo" style="margin-top:8px;"><i class="fa-solid fa-flask"></i> Inserir Dados Demo</button>
+                <button class="btn btn-secundario btn-sm" id="btn-limpar-tudo" style="margin-top:4px;"><i class="fa-solid fa-trash"></i> Limpar Tudo</button>
+            `;
+            grid.appendChild(d);
+            if (badge) badge.textContent = '0';
+        } else {
+            lista.forEach(exp => grid.appendChild(criarCard(exp)));
+            if (badge) badge.textContent = lista.length;
+        }
+    }
+
+    function criarCard(exp) {
+        const card = document.createElement('div');
+        card.className = 'card-exp';
+        const iniciais = exp.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        const dispLabel = DISP_LABELS[exp.disponibilidade] || exp.disponibilidade;
+        const nivelLabel = NIVEL_LABELS[exp.nivel] || exp.nivel;
+        const media = calcularMedia(exp);
+        const totalAv = (exp.avaliacoes || []).length;
+        const patente = obterPatente(media, totalAv);
+
+        card.innerHTML = `
+            <div class="card-exp-topo">
+                <span class="patente-badge patente-${patente.cor}">${patente.nome}</span>
+            </div>
+            <div class="card-exp-header">
+                <div class="card-exp-avatar">${escaparHTML(iniciais)}</div>
+                <div><div class="card-exp-nome">${escaparHTML(exp.nome)}</div><div class="card-exp-nivel">${nivelLabel}</div></div>
+                <div class="card-exp-preco">${exp.preco} MTN/h</div>
+            </div>
+            <div class="rating-info">${renderEstrelas(media)} <span class="nota">${media.toFixed(1)}</span> (${totalAv} avaliaç${totalAv===1?'ão':'ões'})</div>
+            <div class="card-exp-materias">${exp.materias.map(m=>`<span class="card-exp-tag">${escaparHTML(m)}</span>`).join('')}</div>
+            <div class="card-exp-disp"><span class="bolinha"></span> ${dispLabel}</div>
+            ${exp.descricao?`<p style="font-size:0.78rem;color:var(--cinza-500);">${escaparHTML(exp.descricao).substring(0,80)}...</p>`:''}
+            <div class="card-exp-acoes">
+                <button class="btn btn-agora btn-sm btn-aula-ao-vivo" data-id="${exp.id}" data-nome="${escaparHTML(exp.nome)}"><i class="fa-solid fa-video"></i> Ao Vivo</button>
+                <button class="btn btn-whatsapp btn-sm btn-whatsapp-card" data-nome="${escaparHTML(exp.nome)}" data-tel="${escaparHTML(exp.telefone)}" data-mats="${escaparHTML(exp.materias.join(', '))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button class="btn btn-dourado btn-sm btn-pagar-card" data-id="${exp.id}" data-nome="${escaparHTML(exp.nome)}" data-preco="${exp.preco}"><i class="fa-solid fa-money-bill-wave"></i> Pagar</button>
+                <button class="btn btn-secundario btn-sm card-btn-perfil" data-id="${exp.id}"><i class="fa-solid fa-id-card"></i> Perfil</button>
+            </div>`;
+
+        // Event: Ao Vivo
+        card.querySelector('.btn-aula-ao-vivo').addEventListener('click', function(e) {
+            e.stopPropagation();
+            iniciarSalaAula(this.dataset.id, this.dataset.nome);
+        });
+
+        // Event: WhatsApp
+        card.querySelector('.btn-whatsapp-card').addEventListener('click', function(e) {
+            e.stopPropagation();
+            abrirWhatsApp(this.dataset.tel, this.dataset.nome, this.dataset.mats);
+        });
+
+        // Event: Pagar
+        card.querySelector('.btn-pagar-card').addEventListener('click', function(e) {
+            e.stopPropagation();
+            abrirModalComprovativo(this.dataset.id, this.dataset.nome, parseInt(this.dataset.preco));
+        });
+
+        // Event: Perfil
+        card.querySelector('.card-btn-perfil').addEventListener('click', function(e) {
+            e.stopPropagation();
+            abrirPerfil(this.dataset.id);
+        });
+
+        return card;
+    }
+
+    function atualizarSelectMaterias() {
+        const sel = document.getElementById('p-mat');
+        if (!sel) return;
+        const set = new Set();
+        estado.explicadores.forEach(e => e.materias.forEach(m => set.add(m)));
+        MATERIAS_COMUNS.forEach(m => set.add(m));
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Todas as matérias</option>';
+        [...set].sort((a, b) => a.localeCompare(b, 'pt')).forEach(m => {
+            const o = document.createElement('option');
+            o.value = m;
+            o.textContent = m;
+            if (m === val) o.selected = true;
+            sel.appendChild(o);
+        });
+    }
+
+    // ==============================================================
+    // GESTÃO DE TAGS
+    // ==============================================================
+    function atualizarTagsMateriasExplicador() {
+        const c = document.getElementById('r-mat-tags');
+        if (!c) return;
+        c.innerHTML = '';
+        estado.materiasTempExplicador.forEach((m, i) => {
+            const t = document.createElement('span');
+            t.className = 'form-tag';
+            t.innerHTML = `${escaparHTML(m)} <button data-idx="${i}">×</button>`;
+            t.querySelector('button').addEventListener('click', () => {
+                estado.materiasTempExplicador.splice(i, 1);
+                atualizarTagsMateriasExplicador();
+            });
+            c.appendChild(t);
+        });
+    }
+
+    function atualizarTagsMateriasAluno() {
+        const c = document.getElementById('a-mat-tags');
+        if (!c) return;
+        c.innerHTML = '';
+        estado.materiasTempAluno.forEach((m, i) => {
+            const t = document.createElement('span');
+            t.className = 'form-tag';
+            t.innerHTML = `${escaparHTML(m)} <button data-idx="${i}">×</button>`;
+            t.querySelector('button').addEventListener('click', () => {
+                estado.materiasTempAluno.splice(i, 1);
+                atualizarTagsMateriasAluno();
+            });
+            c.appendChild(t);
+        });
+    }
+
+    // ==============================================================
+    // FILTROS
+    // ==============================================================
+    function aplicarFiltros() {
+        const f = {
+            materia: document.getElementById('p-mat')?.value || '',
+            orcamento: parseInt(document.getElementById('p-orc')?.value) || 0,
+            horario: document.getElementById('p-hor')?.value || '',
+        };
+        let res = [...estado.explicadores];
+        if (f.materia) { const t = f.materia.toLowerCase();
+            res = res.filter(e => e.materias.some(m => m.toLowerCase().includes(t))); }
+        if (f.orcamento > 0) res = res.filter(e => e.preco <= f.orcamento);
+        if (f.horario) { const h = f.horario;
+            res = res.filter(e => e.disponibilidade === h || e.disponibilidade === 'flexivel' || e
+                .disponibilidade.includes(h)); }
+        res.sort((a, b) => a.preco - b.preco);
+        estado.resultados = res;
+        renderizarResultados(res);
+    }
+
+    // ==============================================================
+    // WHATSAPP & M-PESA
+    // ==============================================================
+    function abrirWhatsApp(telefone, nome, materias) {
+        const num = telefone.startsWith('+258') ? telefone : '+258' + telefone;
+        const msg = encodeURIComponent(
+            `Olá ${nome}!\n\nEncontrei o seu perfil na AprenderMZ\n\nInteressado(a) em: ${materias}\n\nPodemos falar sobre horários?`);
+        window.open(`https://wa.me/${num.replace('+', '')}?text=${msg}`, '_blank', 'noopener,noreferrer');
+        toast('A abrir WhatsApp...');
+    }
+
+    function abrirModalPagamento(explicador) {
+        estado.pagamentoAtual = explicador;
+        document.getElementById('mpesa-numero').textContent = '841111111';
+        document.getElementById('mpesa-valor').textContent = explicador.preco + ' MTN';
+        document.getElementById('mpesa-id').value = '';
+        document.getElementById('modal-mpesa').classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalPagamento() {
+        document.getElementById('modal-mpesa').classList.remove('aberto');
+        document.body.style.overflow = '';
+        estado.pagamentoAtual = null;
+    }
+
+    function confirmarPagamento() {
+        const idTransacao = document.getElementById('mpesa-id').value.trim();
+        if (!idTransacao) { toast('Insira o ID da transação M-Pesa.', 'erro'); return; }
+        if (estado.pagamentoAtual) {
+            toast(`Pagamento registado! Aula com ${estado.pagamentoAtual.nome} confirmada. ID: ${idTransacao}`);
+            abrirWhatsApp(estado.pagamentoAtual.telefone, estado.pagamentoAtual.nome, estado.pagamentoAtual
+                .materias.join(', '));
+        }
+        fecharModalPagamento();
+    }
+
+    // ==============================================================
+    // SISTEMA DE COMPROVATIVOS
+    // ==============================================================
+    let comprovativoAulaId = null;
+    let comprovativoProfessorId = null;
+    let comprovativoValor = 0;
+
+    function abrirModalComprovativo(professorId, professorNome, valor) {
+        // Modo Demo: ativar automaticamente se não houver user
+        if (!estado.user) {
+            ativarModoDemo();
+            toast('🎮 Modo Demo: pode testar o envio de comprovativo!', 'sucesso');
+            setTimeout(() => abrirModalComprovativo(professorId, professorNome, valor), 300);
+            return;
+        }
+
+        if (estado.userTipo !== 'estudante') {
+            toast('Apenas alunos podem pagar.', 'erro');
+            return;
+        }
+
+        comprovativoProfessorId = professorId;
+        comprovativoValor = valor;
+        const referencia = gerarReferencia();
+        comprovativoAulaId = referencia;
+
+        document.getElementById('comp-professor').textContent = professorNome;
+        document.getElementById('comp-valor').textContent = valor + ' MTN';
+        document.getElementById('comp-referencia').textContent = referencia;
+        document.getElementById('comp-aula-id').value = referencia;
+        document.getElementById('comp-valor-input').value = valor;
+        document.getElementById('comp-professor-id').value = professorId;
+        document.getElementById('comp-imagem').value = '';
+        
+        document.getElementById('modal-comprovativo').classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalComprovativo() {
+        document.getElementById('modal-comprovativo').classList.remove('aberto');
+        document.body.style.overflow = '';
+        comprovativoAulaId = null;
+        comprovativoProfessorId = null;
+        comprovativoValor = 0;
+    }
+
+    function lerArquivoComoBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function notificarAdmin(mensagem, referencia) {
+        console.log(`📨 Notificação Admin: ${mensagem} - Referência: ${referencia}`);
+    }
+
+    async function enviarComprovativo() {
+        const aulaId = document.getElementById('comp-aula-id').value;
+        const professorId = document.getElementById('comp-professor-id').value;
+        const valor = parseFloat(document.getElementById('comp-valor-input').value);
+        const imagemInput = document.getElementById('comp-imagem');
+        const referencia = gerarReferencia();
+
+        if (!aulaId || !professorId || !valor) {
+            toast('Dados incompletos.', 'erro');
+            return;
+        }
+
+        let imagemBase64 = null;
+        if (imagemInput.files && imagemInput.files[0]) {
+            try {
+                imagemBase64 = await lerArquivoComoBase64(imagemInput.files[0]);
+            } catch (e) {
+                toast('Erro ao ler a imagem.', 'erro');
+                return;
+            }
+        }
+
+        const comissao = valor * COMISSAO_PERCENT;
+        const valorProfessor = valor - comissao;
+
+        try {
+            const { data: comprovativo, error: compError } = await supabaseClient
+                .from('comprovativos')
+                .insert([{
+                    aula_id: aulaId,
+                    professor_id: professorId,
+                    aluno_id: estado.user.id,
+                    valor: valor,
+                    comissao: comissao,
+                    valor_professor: valorProfessor,
+                    referencia: referencia,
+                    imagem: imagemBase64,
+                    status: 'pendente',
+                    data: new Date().toISOString()
+                }])
+                .select()
+                .single();
+
+            if (compError) throw compError;
+
+            await supabaseClient
+                .from('comissoes')
+                .insert([{
+                    referencia: referencia,
+                    valor: comissao,
+                    status: 'recebida',
+                    data: new Date().toISOString()
+                }]);
+
+            toast('✅ Comprovativo enviado com sucesso! Aguarde validação.');
+            fecharModalComprovativo();
+            notificarAdmin('Novo comprovativo pendente', referencia);
+
+        } catch (error) {
+            console.error('Erro ao enviar comprovativo:', error);
+            toast('Erro ao enviar comprovativo: ' + error.message, 'erro');
+        }
+    }
+
+    // ==============================================================
+    // MODO DEMO (NOVO)
+    // ==============================================================
+    function ativarModoDemo() {
+        if (estado.modoDemo) {
+            toast('🎮 Modo Demo já está ativo!', 'sucesso');
+            return;
+        }
+
+        const userDemo = {
+            id: 'demo-user-' + Date.now(),
+            email: 'demo@modo.demo',
+            user_metadata: {
+                full_name: 'Utilizador Demo',
+                tipo: 'estudante'
+            },
+            telefone: '841234567'
+        };
+        
+        estado.user = userDemo;
+        estado.userTipo = 'estudante';
+        estado.isAdmin = false;
+        estado.modoDemo = true;
+        
+        atualizarUIUsuario();
+        
+        toast('🎮 Modo Demo ativado! Pode testar todas as funcionalidades.', 'sucesso');
+        toast('🔓 Não precisa de login para testar.', 'sucesso');
+        
+        document.body.classList.add('modo-demo-ativo');
+        
+        let badge = document.getElementById('demo-badge-header');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.id = 'demo-badge-header';
+            badge.className = 'demo-badge-header';
+            badge.textContent = '🎮 DEMO';
+            const userNameDisplay = document.getElementById('user-name-display');
+            if (userNameDisplay) {
+                userNameDisplay.parentElement.appendChild(badge);
+            }
+        }
+        
+        const loginBtns = document.querySelectorAll('#btn-login-desktop, #btn-login-mobile, #btn-login-sala');
+        loginBtns.forEach(btn => btn.style.display = 'none');
+        
+        console.log('🎮 Modo Demo ativado!');
+    }
+
+    function desativarModoDemo() {
+        estado.user = null;
+        estado.userTipo = null;
+        estado.modoDemo = false;
+        document.body.classList.remove('modo-demo-ativo');
+        const badge = document.getElementById('demo-badge-header');
+        if (badge) badge.remove();
+        const loginBtns = document.querySelectorAll('#btn-login-desktop, #btn-login-mobile, #btn-login-sala');
+        loginBtns.forEach(btn => btn.style.display = '');
+        atualizarUIUsuario();
+        toast('Modo Demo desativado.', 'sucesso');
+    }
+
+    // ==============================================================
+    // DASHBOARD ADMIN
+    // ==============================================================
+    async function carregarDashboardAdmin() {
+        if (!estado.isAdmin && !estado.modoDemo) return;
+
+        try {
+            const { data: pendentes, error: pError } = await supabaseClient
+                .from('comprovativos')
+                .select('*')
+                .eq('status', 'pendente')
+                .order('data', { ascending: false });
+
+            if (pError) throw pError;
+
+            const { data: comissoes, error: cError } = await supabaseClient
+                .from('comissoes')
+                .select('valor')
+                .eq('status', 'recebida');
+
+            if (cError) throw cError;
+
+            const { data: pagamentosProf, error: ppError } = await supabaseClient
+                .from('pagamentos_professores')
+                .select('valor')
+                .eq('status', 'pago');
+
+            if (ppError) throw ppError;
+
+            const { data: aulas, error: aError } = await supabaseClient
+                .from('aulas')
+                .select('id')
+                .eq('status', 'confirmada');
+
+            if (aError) throw aError;
+
+            const totalComissao = comissoes.reduce((s, c) => s + c.valor, 0);
+            const totalPagoProf = pagamentosProf.reduce((s, p) => s + p.valor, 0);
+
+            document.getElementById('stat-pendentes').textContent = pendentes.length;
+            document.getElementById('stat-comissao').textContent = totalComissao.toFixed(2) + ' MTN';
+            document.getElementById('stat-pagos').textContent = totalPagoProf.toFixed(2) + ' MTN';
+            document.getElementById('stat-aulas').textContent = aulas.length;
+
+            renderizarPendentes(pendentes);
+            renderizarHistorico();
+
+        } catch (error) {
+            console.error('Erro ao carregar dashboard:', error);
+            toast('Erro ao carregar dashboard.', 'erro');
+        }
+    }
+
+    function renderizarPendentes(pendentes) {
+        const container = document.getElementById('lista-pagamentos');
+        if (!pendentes || pendentes.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center;padding:40px;color:var(--cinza-400);">
+                    <i class="fa-solid fa-check-circle" style="font-size:2rem;color:var(--sucesso);"></i>
+                    <p style="margin-top:8px;">Nenhum pagamento pendente.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = pendentes.map(p => `
+            <div class="pagamento-item">
+                <div class="info">
+                    <div class="ref">${p.referencia}</div>
+                    <div class="detalhes">
+                        <span>Valor: ${p.valor} MTN</span>
+                        <span style="margin-left:12px;">Comissão: ${p.comissao} MTN (10%)</span>
+                        <span style="margin-left:12px;">Professor: ${p.professor_id}</span>
+                        <span style="margin-left:12px;">Data: ${new Date(p.data).toLocaleDateString()}</span>
+                    </div>
+                    ${p.imagem ? `<img src="${p.imagem}" alt="Comprovativo" class="comprovativo" onclick="window.open('${p.imagem}','_blank')">` : ''}
+                </div>
+                <div class="acoes">
+                    <button class="btn btn-success btn-sm" onclick="validarComprovativo('${p.id}')">
+                        <i class="fa-solid fa-check"></i> Validar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="rejeitarComprovativo('${p.id}')">
+                        <i class="fa-solid fa-xmark"></i> Rejeitar
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function renderizarHistorico() {
+        const container = document.getElementById('historico-pagamentos');
+        try {
+            const { data, error } = await supabaseClient
+                .from('comprovativos')
+                .select('*')
+                .in('status', ['validado', 'rejeitado'])
+                .order('data_validacao', { ascending: false })
+                .limit(20);
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:20px;color:var(--cinza-400);">
+                        <p>Nenhum histórico disponível.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(p => `
+                <div class="pagamento-item" style="background:var(--cinza-50);">
+                    <div class="info">
+                        <div class="ref">${p.referencia}</div>
+                        <div class="detalhes">
+                            <span>Valor: ${p.valor} MTN</span>
+                            <span style="margin-left:12px;">Status: <span class="status-badge ${p.status}">${p.status}</span></span>
+                            <span style="margin-left:12px;">Data: ${new Date(p.data_validacao || p.data).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            container.innerHTML = `<p style="color:var(--erro);">Erro ao carregar histórico.</p>`;
+        }
+    }
+
+    async function validarComprovativo(id) {
+        try {
+            const { data: comprovativo, error: fetchError } = await supabaseClient
+                .from('comprovativos')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const { error: updateError } = await supabaseClient
+                .from('comprovativos')
+                .update({
+                    status: 'validado',
+                    data_validacao: new Date().toISOString()
+                })
+                .eq('id', id);
+
+            if (updateError) throw updateError;
+
+            const { error: aulaError } = await supabaseClient
+                .from('aulas')
+                .insert([{
+                    professor_id: comprovativo.professor_id,
+                    aluno_id: comprovativo.aluno_id,
+                    valor: comprovativo.valor,
+                    referencia: comprovativo.referencia,
+                    status: 'confirmada',
+                    data_aula: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    data_confirmacao: new Date().toISOString()
+                }]);
+
+            if (aulaError) throw aulaError;
+
+            const { error: ppError } = await supabaseClient
+                .from('pagamentos_professores')
+                .insert([{
+                    professor_id: comprovativo.professor_id,
+                    referencia: comprovativo.referencia,
+                    valor: comprovativo.valor_professor,
+                    status: 'pendente_pagamento',
+                    data: new Date().toISOString()
+                }]);
+
+            if (ppError) throw ppError;
+
+            toast('✅ Pagamento validado! Aula confirmada.');
+            carregarDashboardAdmin();
+
+        } catch (error) {
+            console.error('Erro ao validar comprovativo:', error);
+            toast('Erro ao validar comprovativo.', 'erro');
+        }
+    }
+
+    async function rejeitarComprovativo(id) {
+        if (!confirm('Tem certeza que deseja rejeitar este comprovativo?')) return;
+
+        try {
+            const { error } = await supabaseClient
+                .from('comprovativos')
+                .update({
+                    status: 'rejeitado',
+                    data_validacao: new Date().toISOString()
+                })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            toast('❌ Comprovativo rejeitado.');
+            carregarDashboardAdmin();
+
+        } catch (error) {
+            console.error('Erro ao rejeitar comprovativo:', error);
+            toast('Erro ao rejeitar comprovativo.', 'erro');
+        }
+    }
+
+    // ==============================================================
+    // PERFIL
+    // ==============================================================
+    function encontrarExplicador(id) {
+        return estado.explicadores.find(e => e.id === id);
+    }
+
+    function abrirPerfil(id) {
+        const exp = encontrarExplicador(id);
+        if (!exp) { toast('Explicador não encontrado.', 'erro'); return; }
+        const media = calcularMedia(exp);
+        const totalAv = (exp.avaliacoes || []).length;
+        const patente = obterPatente(media, totalAv);
+        const iniciais = exp.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        const nivelLabel = NIVEL_LABELS[exp.nivel] || exp.nivel;
+
+        const avLista = (exp.avaliacoes || []).slice().reverse();
+        let avHTML = '';
+        if (avLista.length === 0) {
+            avHTML = '<div style="text-align:center;padding:20px;color:var(--cinza-400);"><i class="fa-regular fa-comment-dots"></i> Ainda sem avaliações.</div>';
+        } else {
+            avHTML = '<div class="aval-lista">' + avLista.map(a => `
+                <div class="aval-item">
+                    <div class="top"><span class="autor">${escaparHTML(a.autor)}</span> ${renderEstrelas(a.nota)}</div>
+                    ${a.coment ? `<div class="coment">${escaparHTML(a.coment)}</div>` : ''}
+                    <div class="data">${escaparHTML(a.data || '')}</div>
+                </div>`).join('') + '</div>';
+        }
+
+        document.getElementById('modal-perfil-conteudo').innerHTML = `
+            <div class="perfil-header">
+                <div class="perfil-avatar">${escaparHTML(iniciais)}</div>
+                <div class="perfil-info">
+                    <h3>${escaparHTML(exp.nome)}</h3>
+                    <div class="sub">${nivelLabel} · ${exp.preco} MTN/h · ${DISP_LABELS[exp.disponibilidade] || exp.disponibilidade}</div>
+                    <div style="margin-top:6px;"><span class="patente-badge patente-${patente.cor}">${patente.nome}</span></div>
+                </div>
+            </div>
+            <div class="perfil-stats">
+                <div class="perfil-stat-box"><div class="num">${media.toFixed(1)}</div><div class="lbl">${renderEstrelas(media)} Média</div></div>
+                <div class="perfil-stat-box"><div class="num">${totalAv}</div><div class="lbl">Avaliações</div></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                ${exp.materias.map(m => `<span class="card-exp-tag">${escaparHTML(m)}</span>`).join('')}
+            </div>
+            ${exp.descricao ? `<p style="font-size:0.85rem;color:var(--cinza-600);line-height:1.5;margin-bottom:14px;">${escaparHTML(exp.descricao)}</p>` : ''}
+            <div class="perfil-acoes">
+                <button class="btn btn-dourado btn-sm" id="btn-avaliar-perfil"><i class="fa-solid fa-star"></i> Avaliar</button>
+                <button class="btn btn-whatsapp btn-sm" id="btn-wpp-perfil"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button class="btn btn-agora btn-sm" id="btn-aula-perfil"><i class="fa-solid fa-video"></i> Ao Vivo</button>
+                <button class="btn btn-primario btn-sm" id="btn-pagar-perfil"><i class="fa-solid fa-money-bill-wave"></i> Pagar</button>
+            </div>
+            <div style="font-weight:600;font-size:0.85rem;margin:12px 0 8px;"><i class="fa-solid fa-comments"></i> Avaliações</div>
+            ${avHTML}
+        `;
+
+        document.getElementById('modal-perfil-overlay').classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+
+        document.getElementById('btn-avaliar-perfil').addEventListener('click', function() {
+            abrirModalAvaliar(id);
+        });
+        document.getElementById('btn-wpp-perfil').addEventListener('click', function() {
+            abrirWhatsApp(exp.telefone, exp.nome, exp.materias.join(', '));
+        });
+        document.getElementById('btn-aula-perfil').addEventListener('click', function() {
+            iniciarSalaAula(id, exp.nome);
+        });
+        document.getElementById('btn-pagar-perfil').addEventListener('click', function() {
+            abrirModalComprovativo(id, exp.nome, exp.preco);
+        });
+    }
+
+    function fecharPerfil() {
+        document.getElementById('modal-perfil-overlay').classList.remove('aberto');
+        document.body.style.overflow = '';
+    }
+
+    // ==============================================================
+    // AVALIAÇÕES (SÓ ALUNOS)
+    // ==============================================================
+    let avalAlvoId = null;
+    let avalNotaSelecionada = 0;
+
+    function abrirModalAvaliar(id) {
+        if (!estado.user && !estado.modoDemo) {
+            toast('Faça login como aluno para avaliar.', 'erro');
+            document.getElementById('modal-aval-overlay').classList.add('aberto');
+            document.getElementById('aval-mensagem').style.display = 'block';
+            document.getElementById('aval-form').style.display = 'none';
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
+        if (estado.userTipo !== 'estudante' && !estado.modoDemo) {
+            toast('Apenas alunos podem avaliar explicadores.', 'erro');
+            return;
+        }
+
+        const exp = encontrarExplicador(id);
+        if (!exp) return;
+        
+        avalAlvoId = id;
+        avalNotaSelecionada = 0;
+        document.getElementById('aval-nome-alvo').textContent = exp.nome;
+        document.getElementById('aval-autor').value = estado.user?.user_metadata?.full_name || estado.user?.email || 'Utilizador Demo';
+        document.getElementById('aval-coment').value = '';
+        document.querySelectorAll('#form-estrelas i').forEach(i => i.classList.remove('ativa'));
+        
+        document.getElementById('aval-mensagem').style.display = 'none';
+        document.getElementById('aval-form').style.display = 'block';
+        document.getElementById('modal-aval-overlay').classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalAvaliar() {
+        document.getElementById('modal-aval-overlay').classList.remove('aberto');
+        if (!document.getElementById('modal-perfil-overlay').classList.contains('aberto')) {
+            document.body.style.overflow = '';
+        }
+        avalAlvoId = null;
+    }
+
+    function enviarAvaliacao() {
+        if (!avalAlvoId) return;
+        if (!estado.user && !estado.modoDemo) {
+            toast('Apenas alunos podem avaliar.', 'erro');
+            return;
+        }
+        if (avalNotaSelecionada < 1) { toast('Selecione uma nota.', 'erro'); return; }
+        
+        const autor = document.getElementById('aval-autor').value.trim() || 'Anónimo';
+        const coment = document.getElementById('aval-coment').value.trim();
+        const exp = encontrarExplicador(avalAlvoId);
+        if (!exp) return;
+        
+        if (!Array.isArray(exp.avaliacoes)) exp.avaliacoes = [];
+        exp.avaliacoes.push({
+            autor: autor.substring(0, 40),
+            nota: avalNotaSelecionada,
+            coment: coment.substring(0, 240),
+            data: new Date().toISOString().split('T')[0],
+        });
+        salvarDados();
+        toast('Avaliação enviada! Obrigado pela sua contribuição!');
+        const idAtual = avalAlvoId;
+        fecharModalAvaliar();
+        aplicarFiltros();
+        if (document.getElementById('modal-perfil-overlay').classList.contains('aberto')) {
+            abrirPerfil(idAtual);
+        }
+    }
+
+    // ==============================================================
+    // AUTH
+    // ==============================================================
+    function abrirModalAuth() {
+        if (estado.modoDemo) {
+            desativarModoDemo();
+            toast('Modo Demo desativado. Faça login.', 'sucesso');
+        }
+        document.getElementById('modal-auth').classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalAuth() {
+        document.getElementById('modal-auth').classList.remove('aberto');
+        document.body.style.overflow = '';
+    }
+
+    // ==============================================================
+    // LOGIN DEMO ALUNO
+    // ==============================================================
+    async function loginDemoAluno() {
+        if (estado.modoDemo) {
+            desativarModoDemo();
+        }
+        try {
+            const DEMO_EMAIL = 'demo@aprendermz.co.mz';
+            const DEMO_PASSWORD = 'Demo123456!';
+            
+            toast('🔄 A fazer login como Aluno Demo...', 'sucesso');
+            console.log('📧 Tentando login com:', DEMO_EMAIL);
+            
+            const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                email: DEMO_EMAIL,
+                password: DEMO_PASSWORD
+            });
+            
+            if (loginError) {
+                console.error('❌ Erro no login:', loginError);
+                
+                if (loginError.message.includes('Invalid login credentials') || 
+                    loginError.message.includes('Email not confirmed')) {
+                    
+                    toast('Conta demo não encontrada. Criando...', 'sucesso');
+                    
+                    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+                        email: DEMO_EMAIL,
+                        password: DEMO_PASSWORD,
+                        options: {
+                            data: {
+                                full_name: 'Aluno Demo',
+                                tipo: 'estudante',
+                                nivel: '12classe',
+                                cidade: 'maputo',
+                                escola: 'Escola Secundária da Matola'
+                            }
+                        }
+                    });
+                    
+                    if (signUpError) {
+                        console.error('❌ Erro ao criar conta demo:', signUpError);
+                        toast('Erro ao criar conta demo: ' + signUpError.message, 'erro');
+                        return;
+                    }
+                    
+                    if (signUpData.user) {
+                        toast('✅ Conta demo criada! A fazer login...', 'sucesso');
+                        
+                        const { data: loginData2, error: loginError2 } = await supabaseClient.auth.signInWithPassword({
+                            email: DEMO_EMAIL,
+                            password: DEMO_PASSWORD
+                        });
+                        
+                        if (loginError2) {
+                            toast('Conta criada! Faça login manualmente.', 'sucesso');
+                            return;
+                        }
+                        
+                        estado.user = loginData2.user;
+                        estado.userTipo = 'estudante';
+                        atualizarUIUsuario();
+                        toast('✅ Bem-vindo Aluno Demo!', 'sucesso');
+                        console.log('✅ Aluno Demo logado:', estado.user);
+                        return;
+                    }
+                    
+                    toast('Erro ao criar conta demo. Tente novamente.', 'erro');
+                    return;
+                }
+                
+                toast('Erro ao fazer login: ' + loginError.message, 'erro');
+                return;
+            }
+            
+            estado.user = loginData.user;
+            estado.userTipo = 'estudante';
+            atualizarUIUsuario();
+            toast('✅ Bem-vindo Aluno Demo!', 'sucesso');
+            console.log('✅ Aluno Demo logado:', estado.user);
+            
+        } catch (err) {
+            console.error('❌ Erro no login demo:', err);
+            toast('Erro ao fazer login demo: ' + err.message, 'erro');
+        }
+    }
+
+    function atualizarUIUsuario() {
+        const user = estado.user;
+        const desktopBadge = document.getElementById('auth-badge-desktop');
+        const loginBtnDesktop = document.getElementById('btn-login-desktop');
+        const loginBtnMobile = document.getElementById('btn-login-mobile');
+        const authInfoMobile = document.getElementById('auth-info-mobile');
+        const userNameMobile = document.getElementById('user-name-mobile');
+        const userTipoMobile = document.getElementById('user-tipo-mobile');
+        const userTipoDisplay = document.getElementById('user-tipo-display');
+
+        estado.isAdmin = user?.email === 'admin@aprendermz.co.mz' || user?.email === 'umeysafar@gmail.com';
+
+        if (user) {
+            const nome = user.user_metadata?.full_name || user.email || 'Utilizador';
+            const init = nome.charAt(0).toUpperCase();
+            const tipoLabel = estado.userTipo === 'estudante' ? '🎓 Aluno' : '📚 Explicador';
+            
+            desktopBadge.style.display = 'flex';
+            document.getElementById('user-avatar-init').textContent = init;
+            document.getElementById('user-name-display').textContent = nome.split(' ')[0];
+            userTipoDisplay.textContent = tipoLabel;
+            loginBtnDesktop.style.display = 'none';
+            loginBtnMobile.style.display = 'none';
+            authInfoMobile.style.display = 'block';
+            userNameMobile.textContent = nome;
+            userTipoMobile.textContent = tipoLabel;
+            
+            document.getElementById('sala-nao-autenticado').style.display = 'none';
+            document.getElementById('sala-sem-aula').style.display = 'block';
+
+            if (estado.isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('visivel'));
+                carregarDashboardAdmin();
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('visivel'));
+            }
+
+        } else {
+            desktopBadge.style.display = 'none';
+            loginBtnDesktop.style.display = 'inline-flex';
+            loginBtnMobile.style.display = 'block';
+            authInfoMobile.style.display = 'none';
+            document.getElementById('sala-nao-autenticado').style.display = 'block';
+            document.getElementById('sala-sem-aula').style.display = 'none';
+            document.getElementById('sala-ativa').style.display = 'none';
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('visivel'));
+            estado.isAdmin = false;
+        }
+    }
+
+    async function fazerLogin(email, password) {
+        const form = document.getElementById('auth-form');
+        const loading = document.getElementById('auth-loading');
+        form.style.display = 'none';
+        loading.style.display = 'block';
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            estado.user = data.user;
+            estado.userTipo = data.user.user_metadata?.tipo || 'estudante';
+            atualizarUIUsuario();
+            toast(`Bem-vindo(a)!`);
+            fecharModalAuth();
+        } catch (err) {
+            toast(err.message || 'Erro ao entrar.', 'erro');
+            form.style.display = 'block';
+            loading.style.display = 'none';
+        }
+    }
+
+    async function fazerRegisto(email, password, nome, tipo, dadosAdicionais = {}) {
+        const form = document.getElementById('auth-form');
+        const loading = document.getElementById('auth-loading');
+        form.style.display = 'none';
+        loading.style.display = 'block';
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { 
+                    data: { 
+                        full_name: nome || email.split('@')[0],
+                        tipo: tipo,
+                        ...dadosAdicionais
+                    } 
+                }
+            });
+            if (error) throw error;
+            if (data.user) {
+                toast(`Conta criada! Faça login.`);
+                form.style.display = 'block';
+                loading.style.display = 'none';
+                document.getElementById('auth-email').value = email;
+                document.getElementById('auth-password').value = '';
+            } else {
+                toast('Verifique seu email para confirmar a conta.', 'sucesso');
+                fecharModalAuth();
+            }
+        } catch (err) {
+            toast(err.message || 'Erro ao criar conta.', 'erro');
+            form.style.display = 'block';
+            loading.style.display = 'none';
+        }
+    }
+
+    async function fazerLogout() {
+        if (estado.modoDemo) {
+            desativarModoDemo();
+            return;
+        }
+        try {
+            await supabaseClient.auth.signOut();
+            estado.user = null;
+            estado.userTipo = null;
+            if (estado.salaAtiva) sairSalaAula();
+            atualizarUIUsuario();
+            toast('Saiu com sucesso.');
+        } catch (err) {
+            toast('Erro ao sair.', 'erro');
+        }
+    }
+
+    async function verificarSessao() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session?.user) {
+            estado.user = session.user;
+            estado.userTipo = session.user.user_metadata?.tipo || 'estudante';
+            atualizarUIUsuario();
+        }
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+            estado.user = session?.user || null;
+            estado.userTipo = session?.user?.user_metadata?.tipo || 'estudante';
+            atualizarUIUsuario();
+        });
+    }
+
+    // ==============================================================
+    // SALA DE AULA
+    // ==============================================================
+    let streamLocal = null;
+    let clientAgora = null;
+
+    async function gerarTokenAgora(explicadorId, userId) {
+        try {
+            const response = await supabaseClient.functions.invoke(AGORA_EDGE_FUNCTION, {
+                body: {
+                    channel: `sala-${explicadorId}`,
+                    uid: userId,
+                    role: 'publisher',
+                    expireTime: 3600,
+                },
+            });
+            if (response.error) throw new Error(response.error.message);
+            return response.data;
+        } catch (err) {
+            console.error('Erro ao gerar token:', err);
+            throw err;
+        }
+    }
+
+    async function iniciarSalaAula(explicadorId, nomeExplicador) {
+        if (!estado.user && !estado.modoDemo) {
+            ativarModoDemo();
+            toast('🎮 Modo Demo: a iniciar sala de aula...', 'sucesso');
+            setTimeout(() => iniciarSalaAula(explicadorId, nomeExplicador), 500);
+            return;
+        }
+
+        if (estado.salaAtiva) {
+            toast('Já está numa sala ativa.', 'erro');
+            return;
+        }
+
+        toast('A iniciar sala... Aguarde.', 'sucesso');
+
+        try {
+            const tokenData = await gerarTokenAgora(explicadorId, estado.user.id);
+            console.log('✅ Token gerado:', tokenData);
+
+            estado.tokenAgora = tokenData;
+            estado.salaId = `sala-${explicadorId}-${Date.now()}`;
+            estado.salaAtiva = true;
+
+            document.getElementById('sala-ativa').style.display = 'block';
+            document.getElementById('sala-sem-aula').style.display = 'none';
+            document.getElementById('sala-nao-autenticado').style.display = 'none';
+
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="msg"><span class="author">Sistema</span> Sala com ${escaparHTML(nomeExplicador)} iniciada!</div>
+                <div class="msg"><span class="author">Sistema</span> Conectando ao Agora...</div>
+            `;
+            document.getElementById('participants-list').innerHTML = `
+                <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Participantes</div>
+                <div class="p-item"><span class="dot"></span> Você (${estado.user?.email || 'Demo'})</div>
+                <div class="p-item"><span class="dot"></span> ${escaparHTML(nomeExplicador)} (Explicador)</div>
+            `;
+
+            if (typeof AgoraRTC !== 'undefined') {
+                clientAgora = AgoraRTC.createClient({ 
+                    mode: "rtc", 
+                    codec: "vp8",
+                    role: "host"
+                });
+
+                await clientAgora.join(
+                    tokenData.appId,
+                    tokenData.channel,
+                    tokenData.token,
+                    estado.user.id
+                );
+                console.log('✅ Entrou na sala:', tokenData.channel);
+
+                const localStream = AgoraRTC.createStream({
+                    streamID: estado.user.id,
+                    audio: true,
+                    video: true,
+                    screen: false
+                });
+
+                await localStream.init();
+                localStream.play('video-self');
+                document.getElementById('video-placeholder').style.display = 'none';
+                document.getElementById('video-self').style.display = 'block';
+
+                await clientAgora.publish(localStream);
+                console.log('✅ Stream local publicada');
+                streamLocal = localStream;
+
+                clientAgora.on('stream-added', function(evt) {
+                    const remoteStream = evt.stream;
+                    const id = remoteStream.getId();
+                    if (id !== estado.user.id) {
+                        console.log('📹 Stream adicionado:', id);
+                        clientAgora.subscribe(remoteStream);
+                    }
+                });
+
+                clientAgora.on('stream-subscribed', function(evt) {
+                    const remoteStream = evt.stream;
+                    const id = remoteStream.getId();
+                    console.log('📹 Stream subscrito:', id);
+                    
+                    const container = document.getElementById('remote-videos');
+                    const videoWrapper = document.createElement('div');
+                    videoWrapper.id = `remote-${id}`;
+                    videoWrapper.style.width = '100%';
+                    videoWrapper.style.position = 'relative';
+                    
+                    const label = document.createElement('div');
+                    label.style.cssText = 'position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.6rem;z-index:1;';
+                    label.textContent = `Participante ${id}`;
+                    
+                    videoWrapper.appendChild(label);
+                    container.appendChild(videoWrapper);
+                    
+                    remoteStream.play(`remote-${id}`);
+                    
+                    const participantsList = document.getElementById('participants-list');
+                    const pItem = document.createElement('div');
+                    pItem.className = 'p-item';
+                    pItem.innerHTML = `<span class="dot"></span> Participante ${id}`;
+                    participantsList.appendChild(pItem);
+                });
+
+                clientAgora.on('stream-removed', function(evt) {
+                    const remoteStream = evt.stream;
+                    const id = remoteStream.getId();
+                    const element = document.getElementById(`remote-${id}`);
+                    if (element) element.remove();
+                    
+                    const participantsList = document.getElementById('participants-list');
+                    const items = participantsList.querySelectorAll('.p-item');
+                    items.forEach(item => {
+                        if (item.textContent.includes(`Participante ${id}`)) {
+                            item.remove();
+                        }
+                    });
+                });
+
+                toast(`Sala iniciada com ${nomeExplicador}!`, 'sucesso');
+                document.getElementById('chat-messages').innerHTML += `
+                    <div class="msg"><span class="author">Sistema</span> ✅ Conectado ao Agora!</div>
+                `;
+
+            } else {
+                toast('Agora SDK não encontrado. Verifique a conexão.', 'erro');
+                console.warn('AgoraRTC não está definido.');
+                
+                try {
+                    streamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    const videoSelf = document.getElementById('video-self');
+                    videoSelf.srcObject = streamLocal;
+                    videoSelf.style.display = 'block';
+                    document.getElementById('video-placeholder').style.display = 'none';
+                } catch (err) {
+                    toast('Não foi possível aceder à câmara/microfone.', 'erro');
+                }
+                
+                toast(`Sala simulada com ${nomeExplicador}! (Agora SDK não carregado)`, 'sucesso');
+            }
+
+        } catch (err) {
+            console.error('❌ Erro ao iniciar sala:', err);
+            toast(err.message || 'Erro ao iniciar a sala.', 'erro');
+            estado.salaAtiva = false;
+            estado.salaId = null;
+            estado.tokenAgora = null;
+            document.getElementById('sala-ativa').style.display = 'none';
+            if (estado.user) {
+                document.getElementById('sala-sem-aula').style.display = 'block';
+            }
+        }
+    }
+
+    function sairSalaAula() {
+        if (clientAgora) {
+            try {
+                clientAgora.leave();
+                clientAgora = null;
+            } catch (e) {
+                console.warn('Erro ao sair do Agora:', e);
+            }
+        }
+
+        if (streamLocal) {
+            if (typeof streamLocal.stop === 'function') {
+                streamLocal.stop();
+            }
+            if (streamLocal.getTracks) {
+                streamLocal.getTracks().forEach(track => track.stop());
+            }
+            streamLocal = null;
+        }
+
+        document.getElementById('video-self').srcObject = null;
+        document.getElementById('video-self').style.display = 'none';
+        document.getElementById('video-placeholder').style.display = 'flex';
+        document.getElementById('remote-videos').innerHTML = '';
+
+        estado.salaAtiva = false;
+        estado.salaId = null;
+        estado.tokenAgora = null;
+        document.getElementById('sala-ativa').style.display = 'none';
+        if (estado.user) {
+            document.getElementById('sala-sem-aula').style.display = 'block';
+        }
+        toast('Saiu da sala.');
+    }
+
+    // ==============================================================
+    // INICIALIZAÇÃO
+    // ==============================================================
+    async function init() {
+        console.log('🚀 Inicializando AprenderMZ...');
+        
+        const dadosExistentes = carregarDados();
+        if (dadosExistentes.length === 0) {
+            estado.explicadores = JSON.parse(JSON.stringify(DADOS_DEMO_EXPLICADORES));
+            salvarDados();
+            console.log('📚 Dados demo de explicadores carregados!');
+        } else {
+            estado.explicadores = dadosExistentes;
+        }
+        estado.resultados = [...estado.explicadores];
+
+        renderMaterias();
+        renderizarResultados(estado.resultados);
+        atualizarSelectMaterias();
+
+        await verificarSessao();
+
+        const btnMenu = document.getElementById('btn-menu');
+        const menuMobile = document.getElementById('menu-mobile');
+        const overlay = document.getElementById('menu-overlay');
+        let menuAberto = false;
+
+        function toggleMenu() {
+            menuAberto = !menuAberto;
+            menuMobile.classList.toggle('aberto', menuAberto);
+            overlay.classList.toggle('aberto', menuAberto);
+            btnMenu.innerHTML = menuAberto ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+            document.body.style.overflow = menuAberto ? 'hidden' : '';
+        }
+        btnMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        menuMobile.querySelectorAll('a').forEach(l => l.addEventListener('click', toggleMenu));
+
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 10);
+        }, { passive: true });
+
+        // ===== ESCOLHA DE PERFIL =====
+        const perfilCards = document.querySelectorAll('.perfil-card');
+        const formContainerAluno = document.getElementById('form-container-aluno');
+        const formContainerExplicador = document.getElementById('form-container-explicador');
+
+        perfilCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const perfil = this.dataset.perfil;
+                if (perfil === 'estudante') {
+                    formContainerAluno.classList.add('visivel');
+                    formContainerExplicador.classList.remove('visivel');
+                    document.getElementById('escolha-perfil').style.display = 'none';
+                    formContainerAluno.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else if (perfil === 'explicador') {
+                    formContainerExplicador.classList.add('visivel');
+                    formContainerAluno.classList.remove('visivel');
+                    document.getElementById('escolha-perfil').style.display = 'none';
+                    formContainerExplicador.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        document.getElementById('btn-cancelar-aluno').addEventListener('click', function() {
+            formContainerAluno.classList.remove('visivel');
+            document.getElementById('escolha-perfil').style.display = 'grid';
+            document.getElementById('form-registar-aluno').reset();
+            estado.materiasTempAluno = [];
+            atualizarTagsMateriasAluno();
+        });
+
+        document.getElementById('btn-cancelar-explicador').addEventListener('click', function() {
+            formContainerExplicador.classList.remove('visivel');
+            document.getElementById('escolha-perfil').style.display = 'grid';
+            document.getElementById('form-registar-explicador').reset();
+            estado.materiasTempExplicador = [];
+            atualizarTagsMateriasExplicador();
+        });
+
+        // ===== REGISTO ALUNO =====
+        document.getElementById('btn-add-mat-aluno').addEventListener('click', () => {
+            const inp = document.getElementById('a-mat-input');
+            const v = inp.value.trim();
+            if (!v) return;
+            if (estado.materiasTempAluno.length >= 8) { toast('Máximo 8 matérias.', 'erro'); return; }
+            if (estado.materiasTempAluno.some(m => m.toLowerCase() === v.toLowerCase())) { toast('Matéria já adicionada.',
+                    'erro'); return; }
+            estado.materiasTempAluno.push(v);
+            atualizarTagsMateriasAluno();
+            inp.value = '';
+            inp.focus();
+        });
+        document.getElementById('a-mat-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault();
+                document.getElementById('btn-add-mat-aluno').click(); }
+        });
+
+        document.getElementById('form-registar-aluno').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('a-nome').value.trim();
+            const email = document.getElementById('a-email').value.trim();
+            const password = document.getElementById('a-password').value;
+            const telefone = document.getElementById('a-tel').value.trim();
+            const nivel = document.getElementById('a-nivel').value;
+            const cidade = document.getElementById('a-cidade').value;
+            const escola = document.getElementById('a-escola').value.trim();
+            const materias = [...estado.materiasTempAluno];
+
+            if (nome.length < 3) { toast('Nome muito curto.', 'erro'); return; }
+            if (!email) { toast('Email é obrigatório.', 'erro'); return; }
+            if (password.length < 6) { toast('Palavra-passe deve ter 6+ caracteres.', 'erro'); return; }
+            if (!nivel) { toast('Selecione o nível de ensino.', 'erro'); return; }
+            if (!cidade) { toast('Selecione a cidade.', 'erro'); return; }
+
+            fazerRegisto(email, password, nome, 'estudante', {
+                telefone: telefone,
+                nivel: nivel,
+                cidade: cidade,
+                escola: escola,
+                materias_interesse: materias
+            });
+        });
+
+        // ===== REGISTO EXPLICADOR =====
+        document.getElementById('btn-add-mat-explicador').addEventListener('click', () => {
+            const inp = document.getElementById('r-mat-input');
+            const v = inp.value.trim();
+            if (!v) return;
+            if (estado.materiasTempExplicador.length >= 8) { toast('Máximo 8 matérias.', 'erro'); return; }
+            if (estado.materiasTempExplicador.some(m => m.toLowerCase() === v.toLowerCase())) { toast(
+                    'Matéria já adicionada.', 'erro'); return; }
+            estado.materiasTempExplicador.push(v);
+            atualizarTagsMateriasExplicador();
+            inp.value = '';
+            inp.focus();
+        });
+        document.getElementById('r-mat-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault();
+                document.getElementById('btn-add-mat-explicador').click(); }
+        });
+
+        document.getElementById('form-registar-explicador').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('r-nome').value.trim();
+            const email = document.getElementById('r-email').value.trim();
+            const password = document.getElementById('r-password').value;
+            const telefone = document.getElementById('r-tel').value.trim();
+            const materias = [...estado.materiasTempExplicador];
+            const nivel = document.getElementById('r-nivel').value;
+            const preco = parseInt(document.getElementById('r-preco').value);
+            const disponibilidade = document.getElementById('r-disp').value;
+            const descricao = document.getElementById('r-desc').value.trim();
+
+            if (nome.length < 3) { toast('Nome muito curto.', 'erro'); return; }
+            if (!email) { toast('Email é obrigatório.', 'erro'); return; }
+            if (password.length < 6) { toast('Palavra-passe deve ter 6+ caracteres.', 'erro'); return; }
+            if (!/^8[234567]\d{7}$/.test(telefone)) { toast('Telefone inválido.', 'erro'); return; }
+            if (materias.length === 0) { toast('Adicione pelo menos 1 matéria.', 'erro'); return; }
+            if (!nivel) { toast('Selecione o nível.', 'erro'); return; }
+            if (isNaN(preco) || preco < 100 || preco > 5000) { toast('Preço entre 100-5000 MTN.', 'erro'); return; }
+            if (!disponibilidade) { toast('Selecione disponibilidade.', 'erro'); return; }
+
+            fazerRegisto(email, password, nome, 'explicador', {
+                telefone: telefone,
+                nivel: nivel,
+                materias: materias,
+                preco: preco,
+                disponibilidade: disponibilidade,
+                descricao: descricao
+            }).then(() => {
+                const novo = { 
+                    id: 'e-' + Date.now(), 
+                    nome: nome, 
+                    telefone: telefone, 
+                    materias: materias,
+                    nivel: nivel, 
+                    preco: preco, 
+                    disponibilidade: disponibilidade,
+                    descricao: descricao, 
+                    avaliacoes: [], 
+                    data: new Date().toISOString().split('T')[0] 
+                };
+                estado.explicadores.push(novo);
+                salvarDados();
+                estado.materiasTempExplicador = [];
+                atualizarTagsMateriasExplicador();
+                document.getElementById('form-registar-explicador').reset();
+                atualizarSelectMaterias();
+                estado.resultados = [...estado.explicadores];
+                renderizarResultados(estado.resultados);
+                toast(`Explicador "${novo.nome}" registado!`);
+                document.getElementById('form-container-explicador').classList.remove('visivel');
+                document.getElementById('escolha-perfil').style.display = 'grid';
+            });
+        });
+
+        // ===== PESQUISA =====
+        document.getElementById('btn-pesquisar').addEventListener('click', aplicarFiltros);
+        document.getElementById('btn-limpar-filtros').addEventListener('click', function() {
+            document.getElementById('p-mat').value = '';
+            document.getElementById('p-orc').value = '';
+            document.getElementById('p-hor').value = '';
+            estado.resultados = [...estado.explicadores];
+            renderizarResultados(estado.resultados);
+            toast('Filtros limpos.');
+        });
+
+        // ===== DEMO E LIMPAR TUDO =====
+        document.getElementById('btn-demo').addEventListener('click', function() {
+            if (estado.explicadores.length > 0 && !confirm('Substituir dados existentes pelos demo?'))
+                return;
+            estado.explicadores = JSON.parse(JSON.stringify(DADOS_DEMO_EXPLICADORES));
+            salvarDados();
+            atualizarSelectMaterias();
+            estado.resultados = [...estado.explicadores];
+            renderizarResultados(estado.resultados);
+            toast('Dados demo inseridos!');
+        });
+
+        document.getElementById('btn-limpar-tudo').addEventListener('click', function() {
+            if (!confirm('Remover TODOS os dados?')) return;
+            estado.explicadores = [];
+            estado.resultados = [];
+            estado.materiasTempExplicador = [];
+            estado.materiasTempAluno = [];
+            salvarDados();
+            atualizarSelectMaterias();
+            atualizarTagsMateriasExplicador();
+            atualizarTagsMateriasAluno();
+            renderizarResultados([]);
+            toast('Todos os dados removidos.');
+        });
+
+        // ===== BOTÃO SAIR =====
+        document.getElementById('btn-logout').addEventListener('click', fazerLogout);
+        document.getElementById('btn-logout-mobile').addEventListener('click', fazerLogout);
+
+        // ===== AUTH LOGIN =====
+        document.getElementById('btn-auth-login').addEventListener('click', async function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) { toast('Preencha email e palavra-passe.', 'erro'); return; }
+            await fazerLogin(email, password);
+        });
+
+        document.getElementById('auth-password').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('btn-auth-login').click();
+        });
+
+        // ===== ESTRELAS DA AVALIAÇÃO =====
+        document.querySelectorAll('#form-estrelas i').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const nota = parseInt(this.dataset.nota);
+                avalNotaSelecionada = nota;
+                document.querySelectorAll('#form-estrelas i').forEach(i => {
+                    i.classList.toggle('ativa', parseInt(i.dataset.nota) <= nota);
+                });
+            });
+            el.addEventListener('mouseenter', function(e) {
+                e.stopPropagation();
+                const nota = parseInt(this.dataset.nota);
+                document.querySelectorAll('#form-estrelas i').forEach(i => {
+                    i.classList.toggle('ativa', parseInt(i.dataset.nota) <= nota);
+                });
+            });
+        });
+        document.getElementById('form-estrelas').addEventListener('mouseleave', function(e) {
+            e.stopPropagation();
+            document.querySelectorAll('#form-estrelas i').forEach(el => {
+                el.classList.toggle('ativa', parseInt(el.dataset.nota) <= avalNotaSelecionada);
+            });
+        });
+
+        // ===== BOTÃO ENVIAR AVALIAÇÃO =====
+        document.getElementById('btn-enviar-aval').addEventListener('click', enviarAvaliacao);
+
+        // ===== BOTÃO CONFIRMAR PAGAMENTO (M-Pesa) =====
+        document.getElementById('btn-confirmar-pagamento').addEventListener('click', confirmarPagamento);
+
+        // ===== SALA =====
+        document.getElementById('btn-sair-sala').addEventListener('click', sairSalaAula);
+        document.getElementById('btn-mic').addEventListener('click', function() {
+            this.classList.toggle('ativo');
+            if (streamLocal) {
+                if (typeof streamLocal.enableAudio === 'function') {
+                    if (this.classList.contains('ativo')) {
+                        streamLocal.enableAudio();
+                    } else {
+                        streamLocal.disableAudio();
+                    }
+                } else if (streamLocal.getAudioTracks) {
+                    streamLocal.getAudioTracks().forEach(t => t.enabled = this.classList.contains('ativo'));
+                }
+            }
+        });
+        document.getElementById('btn-cam').addEventListener('click', function() {
+            this.classList.toggle('ativo');
+            if (streamLocal) {
+                if (typeof streamLocal.enableVideo === 'function') {
+                    if (this.classList.contains('ativo')) {
+                        streamLocal.enableVideo();
+                    } else {
+                        streamLocal.disableVideo();
+                    }
+                } else if (streamLocal.getVideoTracks) {
+                    streamLocal.getVideoTracks().forEach(t => t.enabled = this.classList.contains('ativo'));
+                }
+            }
+        });
+        document.getElementById('btn-screen').addEventListener('click', async function() {
+            if (!clientAgora) {
+                toast('Entre na sala primeiro.', 'erro');
+                return;
+            }
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                if (screenStream) {
+                    toast('Partilha de ecrã ativa!', 'sucesso');
+                }
+            } catch (err) {
+                toast('Partilha de ecrã cancelada.', 'erro');
+            }
+        });
+        document.getElementById('btn-whiteboard').addEventListener('click', function() {
+            toast('Whiteboard em desenvolvimento.', 'sucesso');
+        });
+
+        // ===== CHAT =====
+        document.getElementById('btn-chat-send').addEventListener('click', function() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = 'msg self';
+            div.innerHTML = `<span class="author">${estado.user?.email?.split('@')[0] || 'Você'}</span> ${escaparHTML(msg)}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            input.value = '';
+        });
+        document.getElementById('chat-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('btn-chat-send').click();
+        });
+
+        // ===== FECHAR MODAIS AO CLICAR FORA =====
+        document.getElementById('modal-mpesa').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalPagamento();
+        });
+        document.getElementById('modal-perfil-overlay').addEventListener('click', function(e) {
+            if (e.target === this) fecharPerfil();
+        });
+        document.getElementById('modal-aval-overlay').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalAvaliar();
+        });
+        document.getElementById('modal-auth').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalAuth();
+        });
+        document.getElementById('modal-comprovativo').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalComprovativo();
+        });
+
+        // ===== ESCAPE =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.aberto').forEach(m => m.classList.remove('aberto'));
+                document.body.style.overflow = '';
+            }
+        });
+
+        console.log('🚀 AprenderMZ pronto!');
+        console.log(`📚 ${estado.explicadores.length} explicadores carregados`);
+        console.log(`👤 Utilizador: ${estado.user ? estado.user.email : 'Não autenticado'}`);
+        console.log(`📋 Tipo: ${estado.userTipo || 'N/A'}`);
+        console.log('💰 Sistema de comprovativos ativo!');
+        console.log('🎮 Modo Demo disponível! (Clique em "Modo Demo" para testar sem login)');
+        console.log('📊 Dashboard Admin disponível para: admin@aprendermz.co.mz');
+    }
+
+    // ==============================================================
+    // EXPOR FUNÇÕES GLOBAIS
+    // ==============================================================
+    window.abrirModalAuth = abrirModalAuth;
+    window.fecharModalAuth = fecharModalAuth;
+    window.fecharModalPagamento = fecharModalPagamento;
+    window.fecharPerfil = fecharPerfil;
+    window.fecharModalAvaliar = fecharModalAvaliar;
+    window.fecharModalComprovativo = fecharModalComprovativo;
+    window.loginDemoAluno = loginDemoAluno;
+    window.ativarModoDemo = ativarModoDemo;
+    window.desativarModoDemo = desativarModoDemo;
+    window.validarComprovativo = validarComprovativo;
+    window.rejeitarComprovativo = rejeitarComprovativo;
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+    </script>
+</body>
+</html>
